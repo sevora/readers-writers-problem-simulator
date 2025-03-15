@@ -1,3 +1,5 @@
+import Process from "./Process";
+
 export const enum FILE_ERROR {
     LOCKED,
     OUT_OF_BOUNDS
@@ -5,7 +7,7 @@ export const enum FILE_ERROR {
 
 class PseudoFile {
     content: string;
-    locked: boolean;
+    lockedBy?: Process<any>;
 
     /**
      * 
@@ -13,7 +15,6 @@ class PseudoFile {
      */
     constructor(content: string) {
         this.content = content;
-        this.locked = false;
     }
 
     /**
@@ -21,8 +22,8 @@ class PseudoFile {
      * @param index 
      * @returns 
      */
-    readAt(index: number) {
-        if (this.locked) 
+    safeGet(index: number) {
+        if (this.lockedBy) 
             return FILE_ERROR.LOCKED;
         if (index > this.content.length-1)
             return FILE_ERROR.OUT_OF_BOUNDS;
@@ -32,15 +33,15 @@ class PseudoFile {
     /**
      * 
      */
-    lock() {
-        this.locked = true;
+    lock(process: Process<any>) {
+        this.lockedBy = process;
     }
 
     /**
      * 
      */
     unlock() {
-        this.locked = false;
+        this.lockedBy = undefined;
     }
 }
 
