@@ -5,9 +5,15 @@ export const enum FILE_ERROR {
     OUT_OF_BOUNDS
 }
 
+export const enum LOCK_MODE {
+    READ,
+    WRITE
+}
+
 class PseudoFile {
     content: string;
-    lockedBy?: Process<any>;
+    locker?: Process<any>;
+    lockMode?: LOCK_MODE;
 
     /**
      * 
@@ -19,29 +25,20 @@ class PseudoFile {
 
     /**
      * 
-     * @param index 
-     * @returns 
      */
-    safeGet(index: number) {
-        if (this.lockedBy) 
-            return FILE_ERROR.LOCKED;
-        if (index > this.content.length-1)
-            return FILE_ERROR.OUT_OF_BOUNDS;
-        return this.content[index];
-    }
-
-    /**
-     * 
-     */
-    lock(process: Process<any>) {
-        this.lockedBy = process;
+    lock(process: Process<any>, lockMode: LOCK_MODE) {
+        if (!this.locker && !this.lockMode) {
+            this.locker = process;
+            this.lockMode = lockMode;
+        }
     }
 
     /**
      * 
      */
     unlock() {
-        this.lockedBy = undefined;
+        this.locker = undefined;
+        this.lockMode = undefined;
     }
 }
 
