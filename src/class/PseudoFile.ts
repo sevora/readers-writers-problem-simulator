@@ -21,6 +21,21 @@ class PseudoFile {
      */
     constructor(content: string) {
         this.content = content;
+        this.locker = undefined;
+        this.lockMode = undefined;
+    }
+
+     /**
+     * 
+     * @param index 
+     * @returns 
+     */
+     safeRead(index: number) {
+        if (this.lockMode === LOCK_MODE.WRITE) 
+            return FILE_ERROR.LOCKED;
+        if (index > this.content.length-1)
+            return FILE_ERROR.OUT_OF_BOUNDS;
+        return this.content[index];
     }
 
     /**

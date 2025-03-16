@@ -10,13 +10,13 @@ const readFileByLetterSafe = new Process(
   },
   (self, context, file) => {
     file.lock(self, LOCK_MODE.READ);
-    const character = file.content[context.index];
+    const character = file.safeRead(context.index);
 
-    if (file.lockMode === LOCK_MODE.WRITE) {
+    if (character === FILE_ERROR.LOCKED) {
       return PROCESS_STATE.WAITING;
     }
 
-    if (context.index > file.content.length-1) {
+    if (character === FILE_ERROR.OUT_OF_BOUNDS) {
       file.unlock();
       return PROCESS_STATE.EXIT;
     }
@@ -34,14 +34,14 @@ const readFileByWordSafe = new Process(
     file.lock(self, LOCK_MODE.READ);
     let character: string | FILE_ERROR = "";
 
-    while (typeof character === "string") {
-      character = file.content[context.index++];
+    while (true) {
+      character = file.safeRead(context.index++);
       
-      if (file.lockMode === LOCK_MODE.WRITE) {
+      if (character === FILE_ERROR.LOCKED) {
         return PROCESS_STATE.WAITING;
       }
       
-      if (context.index > file.content.length-1) {
+      if (character === FILE_ERROR.OUT_OF_BOUNDS) {
         file.unlock();
         return PROCESS_STATE.EXIT;
       }
@@ -77,6 +77,8 @@ const switchCaseWriterSafe = new Process(
     return [{ index: 0 }, PROCESS_STATE.READY]
   },
   (self, context, file) => {
+    file.lock(self, LOCK_MODE.WRITE);
+
     if (file.locker && file.locker !== self) 
       return PROCESS_STATE.WAITING;
 
@@ -85,7 +87,6 @@ const switchCaseWriterSafe = new Process(
       return PROCESS_STATE.EXIT;
     }
 
-    file.lock(self, LOCK_MODE.WRITE);
     const character = file.content[context.index];
     const transform = character.toUpperCase();
     file.content = file.content.substring(0, context.index) + transform + file.content.substring(context.index + 1);
@@ -111,14 +112,14 @@ readFileByWordSafe.connect(file);
 // }, 300);
 
 
-const readFileByLetterTimer = setInterval(function() {
+const readFileByLetterSafeTimer = setInterval(function() {
   readFileByLetterSafe.update();
   const { state } = readFileByLetterSafe;
   const { output } = readFileByLetterSafe.context;
   console.log(output, state);
   
   if (state === PROCESS_STATE.EXIT) {
-    clearInterval(readFileByLetterTimer);
+    clearInterval(readFileByLetterSafeTimer);
   }
 }, 100);
 
@@ -132,13 +133,13 @@ const switchCaseWriterSafeTimer = setInterval(function() {
   }
 }, 100);
 
-const readFileByWordTimer = setInterval(function() {
+const readFileByWordSafeTimer = setInterval(function() {
   readFileByWordSafe.update();
   const { state } = readFileByWordSafe;
   const { output } = readFileByWordSafe.context;
   console.log(output, state);
   
   if (state === PROCESS_STATE.EXIT) {
-    clearInterval(readFileByWordTimer);
+    clearInterval(readFileByWordSafeTimer);
   }
 }, 100);
