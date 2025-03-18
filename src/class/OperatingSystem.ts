@@ -1,16 +1,43 @@
 import Process, { PROCESS_STATE } from "./Process";
 
-class OperatingSystem {
-    processes: Process<any>[];
+/**
+ * This is a simulation for a round-robin operating system.
+ */
+class OperatingSystem<C> {
+    /**
+     * The array of processes that the system is handling.
+     */
+    processes: Process<C>[];
 
+    /**
+     * This function is meant to be called after every 
+     * update of a process. It is a callback function.
+     */
+    afterProcessUpdate?: (process: Process<C>) => void;
+
+    /**
+     * Internal timekeeping for simulation loop.
+     */
     now: number;
+
+    /**
+     * Internal timekeeping for simulation loop.
+     */
     then: number;
+
+    /**
+     * Fixed frames-per-second fr simulation loop.
+     */
     fps: number;
 
+    /**
+     * Internal boolean indicating if simulation is running or not.
+     */
     running: boolean;
 
-    constructor() {
+    constructor(afterProcessUpdate?: (process: Process<C>) => void) {
         this.processes = [];
+        this.afterProcessUpdate = afterProcessUpdate;
         
         this.now = Date.now();
         this.then = this.now;
@@ -20,32 +47,42 @@ class OperatingSystem {
     }
 
     /**
-     * 
-     * @param process 
+     * Use this to add a new process into the OS.
+     * @param process the new process.
      */
     addProcess(process: Process<any>) {
         this.processes.push(process);
     }
 
     /**
-     * 
-     * @param index 
+     * Use this to remove an existing process in the processes array.
+     * @param process the reference to the process to be removed.
      */
-    removeProcess(index: number) {
-        this.processes.splice(index, 1);
+    removeProcess(process: Process<C>) {
+        for (let index = this.processes.length-1; index >= 0; --index) {
+            if (process === this.processes[index]) {
+                this.processes.splice(index, 1);
+                break;
+            }
+        }
     }
 
     /**
-     * 
-     * @param index 
-     * @param priority 
+     * Use this to set the priority of an existing process.
+     * @param process the reference to an existing process.
+     * @param priority the new priority of said process.
      */
-    setPriority(index: number, priority: number) {
-        this.processes[index].priority = priority;
+    setPriority(process: Process<C>, priority: number) {
+        for (let index = 0; index < this.processes.length; ++index) {
+            if (process === this.processes[index]) {
+                this.processes[index].priority = priority;
+                break;
+            }
+        }
     }
 
     /**
-     * 
+     * Use this to start the OS simulation.
      */
     start() {
         this.running = true;
@@ -53,8 +90,7 @@ class OperatingSystem {
     }
 
     /**
-     * 
-     * @returns 
+     * Internal simulation looping function. 
      */
     loop() {
         if (!this.running) return;
@@ -68,11 +104,10 @@ class OperatingSystem {
             this.then = this.now - (elapsed % interval);
             this.step();
         }
-
     }
 
     /**
-     * 
+     * Internal step function for the looping.
      */
     step() {
         const processes = this.processes.toSorted((x, y) => y.priority - x.priority);
@@ -80,17 +115,26 @@ class OperatingSystem {
             if (process.state !== PROCESS_STATE.EXIT) {
                 process.state = PROCESS_STATE.RUNNING;
                 process.update();
+                if (this.afterProcessUpdate) 
+                    this.afterProcessUpdate(process);
             } 
-
-            // update display
         }
     }
 
     /**
-     * 
+     * Use this to stop the OS simulation.
      */
     stop() {
         this.running = false;
+    }
+
+    /**
+     * Use this to reset the OS simulation.
+     */
+    reset() {
+        for (let process of this.processes) {
+            process.initialize();
+        }
     }
 
 
