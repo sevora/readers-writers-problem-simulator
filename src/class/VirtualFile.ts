@@ -21,6 +21,7 @@ export const enum LOCK_MODE {
  * A class to represent a file that the processes can manage.
  */
 class VirtualFile {
+    filename: string;
     content: string;
     locker?: Process<any>;
     lockMode?: LOCK_MODE;
@@ -29,7 +30,8 @@ class VirtualFile {
      * Create a new virtual file.
      * @param content the contents of the file.
      */
-    constructor(content: string) {
+    constructor(filename: string, content: string) {
+        this.filename = filename;
         this.content = content;
         this.locker = undefined;
         this.lockMode = undefined;

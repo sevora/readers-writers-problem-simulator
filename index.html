@@ -10,16 +10,14 @@
 
 <body class="bg-neutral-700">
   <!-- Simulation Process Management Control -->
-  <div class="text-white p-2 fixed rounded-sm right-[50px] top-2 flex items-center justify-center gap-4 bg-neutral-800/90">
-    <div class="flex gap-2 *:px-2 *:py-1 *:rounded-sm *:cursor-pointer *:hover:bg-neutral-700">
-      <button class="bg-neutral-900">Processes</button>
-      <button class="">Files</button>
-      <button class="">Overview</button>
+  <div class="z-100 text-sm text-white p-2 fixed rounded-md right-[50px] top-2 flex flex-col items-center justify-center gap-2 bg-neutral-800/90">
+    <div id="management-panel-header" class="flex gap-2 *:px-2 *:py-1 *:rounded-md *:cursor-pointer *:hover:bg-neutral-700"></div>
+    <div id="management-panel-content" class="w-full flex items-start flex-col gap-2 *:w-full *:text-left *:px-2 *:py-1 *:rounded-sm *:cursor-pointer *:hover:bg-neutral-700">
     </div>
   </div>
 
   <!-- Simulation Event Control -->
-  <div class="fixed left-1/2 bottom-[50px] flex items-center justify-center gap-4">
+  <div class="fixed z-100 left-1/2 bottom-[50px] flex items-center justify-center gap-4">
     <!-- Play or Pause Button -->
     <button class="text-white bg-neutral-800 flex grow-[2] items-center justify-center rounded-full w-[50px] h-[50px] hover:bg-neutral-900 cursor-pointer">
       <span class="material-icons">play_arrow</span>
@@ -30,6 +28,22 @@
     <button class="text-white bg-neutral-800 flex grow-[1] items-center justify-center rounded-full w-[40px] h-[40px] hover:bg-neutral-900 cursor-pointer">
       <span class="material-icons">replay</span>
     </button>
+
+    <!-- Delete All Button -->
+    <button class="text-white bg-neutral-800 flex grow-[1] items-center justify-center rounded-full w-[40px] h-[40px] hover:bg-neutral-900 cursor-pointer">
+      <span class="material-icons">delete</span>
+    </button>
+  </div>
+
+  <div id="sandbox">
+
+   
+    <!-- File -->
+    <div>
+
+    </div>
+
+
   </div>
 
 
