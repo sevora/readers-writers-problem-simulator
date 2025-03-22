@@ -37,13 +37,22 @@ export function createManagementPanelHeaderButtonDOM(name: string) {
     return root;
 }
 
-export function createSandboxProcessDOM(type: PROCESS_TYPE, name: string, onClickConnect: (event: MouseEvent) => void, onClickDelete: (event: MouseEvent) => void) {
+/**
+ * 
+ * @param type 
+ * @param name 
+ * @param onClickConnect 
+ * @param onClickDelete 
+ * @param onDrag 
+ * @returns 
+ */
+export function createSandboxProcessDOM(type: PROCESS_TYPE, name: string, onClickConnect: (event: MouseEvent) => void, onClickDelete: (event: MouseEvent) => void, onDrag: (event: MouseEvent, x: number, y: number) => void) {
     const root = document.createElement("div");
-    root.className = "absolute select-none cursor-grab border-gradient-green border w-64 bg-neutral-800/90 text-white flex flex-wrap group";
+    root.className = "absolute select-none cursor-grab border-gradient-green border w-72 bg-neutral-800/90 text-white flex flex-wrap group";
 
     //
     const staticInformation = document.createElement("div");
-    staticInformation.className = "py-4 px-2 flex gap-2";
+    staticInformation.className = "py-4 px-2 flex gap-2 grow";
     
     //
     const mark = document.createElement("div");
@@ -54,14 +63,22 @@ export function createSandboxProcessDOM(type: PROCESS_TYPE, name: string, onClic
     const label = document.createElement("div");
     label.innerHTML = name;
 
-    staticInformation.append(mark, label);
+    const rank = document.createElement("div");
+    rank.className = "rank text-sm flex px-2 ml-auto justify-center items-center rounded-xl bg-neutral-900";
+    rank.innerHTML = "#0";
+
+    staticInformation.append(mark, label, rank);
     root.append(staticInformation);
 
     //
     if (type === PROCESS_TYPE.READER) {
         const output = document.createElement("div");
-        output.className = "output flex w-full p-3 bg-neutral-900 rounded-b-md";
+        output.className = "w-full p-3 bg-neutral-900 rounded-b-md";
         output.innerHTML = "Output: ";
+
+        const actualOutput = document.createElement("span");
+        actualOutput.className = "output";
+        output.append(actualOutput);
         root.append(output);
     }
 
@@ -91,6 +108,7 @@ export function createSandboxProcessDOM(type: PROCESS_TYPE, name: string, onClic
 
     controls.append(connectButton, deleteButton);
 
+    //
     connectButton.addEventListener("click", onClickConnect);
     deleteButton.addEventListener("click", onClickDelete);
 
@@ -100,23 +118,37 @@ export function createSandboxProcessDOM(type: PROCESS_TYPE, name: string, onClic
     let offsetX: number;
     let offsetY: number;
 
+    /**
+     * 
+     */
     root.addEventListener("mousedown", event => {
         isDragging = true;
         offsetX = event.clientX - root.offsetLeft;
         offsetY = event.clientY - root.offsetTop;
+        root.style.zIndex = "100";
         root.style.cursor = "grabbing";
     });
 
+    /**
+     * 
+     */
     root.addEventListener('mousemove', event => {
-        if (isDragging) {
-            root.style.left = `${event.clientX - offsetX}px`;
-            root.style.top = `${event.clientY - offsetY}px`;
-        }
+        if (!isDragging) return;
+        const resultX = event.clientX - offsetX;
+        const resultY = event.clientY - offsetY;
+        root.style.left = `${resultX}px`;
+        root.style.top = `${resultY}px`;
+        onDrag(event, resultX, resultY);
+    
     });
 
-    root.addEventListener('mouseup', () => {
+    /**
+     * 
+     */
+    root.addEventListener('mouseup', _event => {
         isDragging = false;
         root.style.removeProperty("cursor");
+        root.style.removeProperty("z-index");
     });
     
     return root;

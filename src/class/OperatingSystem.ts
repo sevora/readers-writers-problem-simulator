@@ -76,6 +76,7 @@ class OperatingSystem<C> {
         for (let index = 0; index < this.processes.length; ++index) {
             if (process === this.processes[index]) {
                 this.processes[index].priority = priority;
+                this.processes.sort((x, y) => y.priority - x.priority);
                 break;
             }
         }
@@ -110,8 +111,7 @@ class OperatingSystem<C> {
      * Internal step function for the looping.
      */
     step() {
-        const processes = this.processes.toSorted((x, y) => y.priority - x.priority);
-        for (let process of processes) {
+        for (let process of this.processes) {
             if (process.state !== PROCESS_STATE.EXIT) {
                 process.state = PROCESS_STATE.RUNNING;
                 process.update();
@@ -132,6 +132,7 @@ class OperatingSystem<C> {
      * Use this to reset the OS simulation.
      */
     reset() {
+        this.running = false;
         for (let process of this.processes) {
             process.initialize();
         }
