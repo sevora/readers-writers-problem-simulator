@@ -18,16 +18,21 @@ const operatingSystem = new OperatingSystem<VisualizeContext>((process) => {
 
 const managementPanelHeader = document.querySelector("#management-panel-header") as HTMLDivElement;
 const managementPanelContent = document.querySelector("#management-panel-content") as HTMLDivElement;
+const managementPanelHeaderButtons = attachManagementPanelHeaderButtons();
 const controlPlayPauseButton = document.querySelector("#control-play-pause") as HTMLButtonElement;
 const controlResetButton = document.querySelector("#control-reset") as HTMLButtonElement;
 const controlClearAllButton = document.querySelector("#control-clear-all") as HTMLButtonElement;
+const counterProcess = document.querySelector("#counter-process") as HTMLDivElement;
+const counterFile = document.querySelector("#counter-file") as HTMLDivElement;
 const sandbox = document.querySelector("#sandbox") as HTMLDivElement;
 const preventInteractionsCover = document.querySelector("#prevent-interactions-cover") as HTMLDivElement;
 
-let safeMode = true;
-let processEntities: [Process<VisualizeContext>, HTMLDivElement][] = [];
 const PROCESS_CAP = 6;
 const FILE_CAP = 6;
+
+let safeMode = true;
+let processEntities: [Process<VisualizeContext>, HTMLDivElement][] = [];
+let fileEntities: [VirtualFile, HTMLDivElement][] = [];
 
 /**
  * 
@@ -106,6 +111,7 @@ function displayManagementPanelContentProcesses() {
         }
         operatingSystem.removeProcess(process);
         processDOM.remove();
+        updateCounterDisplay();
       }
 
       const handleDrag = (_event: MouseEvent, _x: number, y: number) => {
@@ -129,7 +135,8 @@ function displayManagementPanelContentProcesses() {
       processDOM.style.left = window.innerWidth * 0.5 - rectangle.width * 0.5 + "px";
       processDOM.style.top = centerY + "px";
       operatingSystem.setPriority(process, -centerY);
-
+      
+      updateCounterDisplay();
       updateProcessesDisplayRank();
     });
 
@@ -161,19 +168,29 @@ function displayManagementPanelContentOverview() {
   managementPanelContent.replaceChildren();
 }
 
+/**
+ * 
+ */
 controlResetButton.addEventListener("click", _event => {
   operatingSystem.reset();
-  // update dom to reset everything
+  // update dom to disconnect everything
 });
 
+/**
+ * 
+ */
 controlClearAllButton.addEventListener("click", _event => {
   operatingSystem.stop();
-  operatingSystem.processes = [];
-  for (const [_process, element]  of processEntities) {
-    element.remove();
-  }
+  operatingSystem.processes.splice(0, operatingSystem.processes.length);
+
+  sandbox.replaceChildren();
+  processEntities.splice(0, processEntities.length);
+  updateCounterDisplay();
 });
 
+/**
+ * 
+ */
 controlPlayPauseButton.addEventListener("click", _event => {
   if (operatingSystem.running) {
     operatingSystem.stop();
@@ -185,6 +202,12 @@ controlPlayPauseButton.addEventListener("click", _event => {
   operatingSystem.start();
   controlPlayPauseButton.querySelector("span")!.innerHTML = "pause";
   preventInteractionsCover.classList.replace("hidden", "block");
+  managementPanelHeaderButtons[2].click();  
 });
 
-attachManagementPanelHeaderButtons()[0].click();
+function updateCounterDisplay() {
+  counterProcess.innerHTML = `${processEntities.length}/${PROCESS_CAP}`;
+  counterFile.innerHTML = `${fileEntities.length}/${FILE_CAP}`;
+}
+
+managementPanelHeaderButtons[0].click();

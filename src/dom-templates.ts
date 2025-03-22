@@ -48,7 +48,7 @@ export function createManagementPanelHeaderButtonDOM(name: string) {
  */
 export function createSandboxProcessDOM(type: PROCESS_TYPE, name: string, onClickConnect: (event: MouseEvent) => void, onClickDelete: (event: MouseEvent) => void, onDrag: (event: MouseEvent, x: number, y: number) => void) {
     const root = document.createElement("div");
-    root.className = "absolute select-none cursor-grab border-gradient-green border w-72 bg-neutral-800/90 text-white flex flex-wrap group";
+    root.className = "absolute select-none cursor-grab border w-[240px] bg-neutral-800/90 text-white flex flex-wrap group " + (type === PROCESS_TYPE.READER ? "border-gradient-green" : "border-gradient-blue");
 
     //
     const staticInformation = document.createElement("div");
@@ -109,14 +109,16 @@ export function createSandboxProcessDOM(type: PROCESS_TYPE, name: string, onClic
     controls.append(connectButton, deleteButton);
 
     //
-    connectButton.addEventListener("click", onClickConnect);
-    deleteButton.addEventListener("click", onClickDelete);
+    connectButton.addEventListener("mousedown", onClickConnect);
+    deleteButton.addEventListener("mousedown", onClickDelete);
 
     root.append(controls);
 
     let isDragging = false;
     let offsetX: number;
     let offsetY: number;
+    const invisibleExpandDrag = document.createElement("div");
+    invisibleExpandDrag.className = "w-screen h-screen z-50 fixed top-0 left-0 cursor-grabbing";
 
     /**
      * 
@@ -126,29 +128,31 @@ export function createSandboxProcessDOM(type: PROCESS_TYPE, name: string, onClic
         offsetX = event.clientX - root.offsetLeft;
         offsetY = event.clientY - root.offsetTop;
         root.style.zIndex = "100";
-        root.style.cursor = "grabbing";
+        invisibleExpandDrag.style.zIndex = "200";
+        document.body.appendChild(invisibleExpandDrag);
     });
 
     /**
      * 
      */
-    root.addEventListener('mousemove', event => {
+    invisibleExpandDrag.addEventListener('mousemove', event => {
         if (!isDragging) return;
-        const resultX = event.clientX - offsetX;
-        const resultY = event.clientY - offsetY;
+        let resultX = event.clientX - offsetX;
+        let resultY = event.clientY - offsetY;
+        resultX = Math.max(0, Math.min(resultX, window.innerWidth - 240));
+        resultY = Math.max(0, Math.min(resultY, window.innerHeight- 50));
         root.style.left = `${resultX}px`;
         root.style.top = `${resultY}px`;
         onDrag(event, resultX, resultY);
-    
     });
 
     /**
      * 
      */
-    root.addEventListener('mouseup', _event => {
+    invisibleExpandDrag.addEventListener('mouseup', _event => {
         isDragging = false;
-        root.style.removeProperty("cursor");
         root.style.removeProperty("z-index");
+        document.body.removeChild(invisibleExpandDrag);
     });
     
     return root;

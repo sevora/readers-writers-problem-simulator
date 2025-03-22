@@ -11,6 +11,13 @@
     animation: 10s rotate linear infinite;
 }
 
+.border-gradient-blue {
+    --angle: 0deg;
+    /* … */
+    border-image: linear-gradient(var(--angle), aquamarine, blueviolet) 1;
+    animation: 10s rotate linear infinite;
+}
+
 @keyframes rotate {
     to {
         --angle: 360deg;
