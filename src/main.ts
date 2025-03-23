@@ -5,9 +5,9 @@ import OperatingSystem from './class/OperatingSystem';
 import Process, { PROCESS_STATE } from './class/Process';
 import VirtualFile from './class/VirtualFile';
 
-import { createNietzscheFile, createCaesarFile, createEinsteinFile, createPangramFile, createReadByLetterUnsafe, createReadByWordUnsafe, createWriteLowercaseUnsafe, PROCESS_TYPE, VisualizeContext, createShakespeareFile } from './logical-templates';
+import { createNietzscheFile, createCaesarFile, createEinsteinFile, createPangramFile, PROCESS_TYPE, VisualizeContext, createShakespeareFile } from './logical-templates';
 import { createManagementPanelContentFileDOM, createManagementPanelContentProcessDOM, createManagementPanelHeaderButtonDOM, createSandboxFileDOM, createSandboxProcessDOM } from './dom-templates';
-import { createReadByLetterSafe, createReadByWordSafe, createWriteLowercaseSafe, createWriteUppercaseSafe } from './logical-templates';
+import { createReadByLetter, createReadByWord, createWriteLowercase, createWriteUppercase } from './logical-templates';
 
 const operatingSystem = new OperatingSystem<VisualizeContext>((process) => {
   /**
@@ -30,8 +30,8 @@ const preventInteractionsCover = document.querySelector("#prevent-interactions-c
 const connectionCanvas = document.querySelector("#connection-canvas") as HTMLCanvasElement;
 const connectionCanvasContext = connectionCanvas.getContext("2d")!;
 
-const PROCESS_CAP = 6;
-const FILE_CAP = 6;
+const PROCESS_CAP = 5;
+const FILE_CAP = 5;
 
 let safeMode = true;
 let connectThis: [Process<VisualizeContext>, HTMLDivElement] | undefined;
@@ -176,19 +176,18 @@ function displayManagementPanelContentProcesses() {
   managementPanelContent.replaceChildren();
 
   const processGenerators = [
-    ["Read by letter", PROCESS_TYPE.READER, createReadByLetterSafe, createReadByLetterUnsafe],
-    ["Read by word", PROCESS_TYPE.READER, createReadByWordSafe, createReadByWordUnsafe],
-    ["Write to uppercase", PROCESS_TYPE.WRITER, createWriteUppercaseSafe, createWriteLowercaseUnsafe],
-    ["Write to lowercase", PROCESS_TYPE.WRITER, createWriteLowercaseSafe, createWriteLowercaseSafe]
-  ] as const;
+    ["Read by letter", PROCESS_TYPE.READER, createReadByLetter],
+    ["Read by word", PROCESS_TYPE.READER, createReadByWord],
+    ["Write to uppercase", PROCESS_TYPE.WRITER, createWriteUppercase],
+    ["Write to lowercase", PROCESS_TYPE.WRITER, createWriteLowercase]
+  ] as const
 
   for (let index = 0; index < processGenerators.length; ++index) {
-    const [name, processType, safeGenerator, unsafeGenerator] = processGenerators[index];
+    const [name, processType, generator] = processGenerators[index];
     const button = createManagementPanelContentProcessDOM(processType, name);
 
     button.addEventListener("click", function (_event) {
       if (processEntities.length + 1 > PROCESS_CAP) return;
-      const generator = safeMode ? safeGenerator : unsafeGenerator;
 
       // create process dom element here
       const handleConnect = (_event: MouseEvent) => {
@@ -222,7 +221,9 @@ function displayManagementPanelContentProcesses() {
         updateProcessesDisplayRank();
       }
 
-      const processDOM = createSandboxProcessDOM(processType, name, handleConnect, handleDelete, handleDrag);
+      
+      const adjustedName = `${name} (${generateRandomString(3)})`;
+      const processDOM = createSandboxProcessDOM(processType, adjustedName, handleConnect, handleDelete, handleDrag);
       const process = generator();
 
       process.context.statechange = (self) => {
@@ -275,24 +276,19 @@ function displayManagementPanelContentFiles() {
   for (let index = 0; index < fileGenerators.length; ++index) {
     const generator = fileGenerators[index]
     const { filename, content } = generator();
-
     const button = createManagementPanelContentFileDOM(filename, content);
 
-    button.addEventListener("click", function(event) {
+    button.addEventListener("click", function(_event) {
+      if (fileEntities.length + 1 > PROCESS_CAP) return;
       const file = generator();
-      
-      const handleDrag = (event: MouseEvent, x: number, y: number) => {
 
-      }
-
-      const handleDelete = (event: MouseEvent) => {
+      const handleDelete = (_event: MouseEvent) => {
+        
         for (const [process] of processEntities) {
           if (process.file === file) {
             process.disconnect();
           }
         }
-        
-        fileDOM.remove();
         
         for (let index = fileEntities.length-1; index >= 0; --index) {
           if (fileEntities[index][0] === file) {
@@ -300,11 +296,21 @@ function displayManagementPanelContentFiles() {
             break;
           }
         }
+
+        fileDOM.remove();
       }
 
-      const fileDOM = createSandboxFileDOM(filename, content, handleDrag, handleDelete);
+      const adjustedFilename = filename.split(".").map(
+        (value, index) => {
+          if (index === 0)
+            return value + "_" + generateRandomString(3) 
+          return value;
+        }
+      ).join('.');
+  
+      const fileDOM = createSandboxFileDOM(adjustedFilename, content, handleDelete);
 
-      fileDOM.addEventListener("mousedown", event => {
+      fileDOM.addEventListener("mousedown", _event => {
         if (!connectThis) return;
         const process = connectThis[0];
         process.connect(file);
@@ -323,6 +329,8 @@ function displayManagementPanelContentFiles() {
       const centerY = window.innerHeight * 0.5 - rectangle.height * 0.5;
       fileDOM.style.left = window.innerWidth * 0.5 - rectangle.width * 0.5 + "px";
       fileDOM.style.top = centerY + "px";
+
+      updateCounterDisplay();
     });
 
     managementPanelContent.appendChild(button);
@@ -390,6 +398,13 @@ document.body.addEventListener("mousemove", event => {
     (event.clientY - box.top) * scaleY,
   ];
 });
+
+function generateRandomString(length: number) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const array = new Uint32Array(length);
+  window.crypto.getRandomValues(array);
+  return Array.from(array, (num) => characters[num % characters.length]).join('');
+}
 
 setupConnectionCanvas();
 managementPanelHeaderButtons[0].click();

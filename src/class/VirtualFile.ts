@@ -25,6 +25,8 @@ class VirtualFile {
     content: string;
     locker?: Process<any>;
     lockMode?: LOCK_MODE;
+
+    disabledLock: boolean;
     statechange?: (self: VirtualFile) => void;
 
     /**
@@ -36,6 +38,7 @@ class VirtualFile {
         this.content = content;
         this.locker = undefined;
         this.lockMode = undefined;
+        this.disabledLock = false;
     }
 
      /**
@@ -75,7 +78,7 @@ class VirtualFile {
      * @param lockMode the lock mode whether reading or writing.
      */
     lock(process: Process<any>, lockMode: LOCK_MODE) {
-        if (!this.locker && !this.lockMode) {
+        if (!this.disabledLock && !this.locker && !this.lockMode) {
             this.locker = process;
             this.lockMode = lockMode;
         }
@@ -87,6 +90,22 @@ class VirtualFile {
     unlock() {
         this.locker = undefined;
         this.lockMode = undefined;
+    }
+
+    /**
+     * Use this to disable lock for disabling solutions.
+     */
+    disableLock() {
+        this.disabledLock = true;
+        this.locker = undefined;
+        this.lockMode = undefined;
+    }
+
+    /**
+     * Use this to enable lock for solutions.
+     */
+    enableLock() {
+        this.disabledLock = false;
     }
 }
 

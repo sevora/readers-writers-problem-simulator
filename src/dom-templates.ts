@@ -48,7 +48,7 @@ export function createManagementPanelHeaderButtonDOM(name: string) {
  */
 export function createSandboxProcessDOM(type: PROCESS_TYPE, name: string, onClickConnect: (event: MouseEvent) => void, onClickDelete: (event: MouseEvent) => void, onDrag: (event: MouseEvent, x: number, y: number) => void) {
     const root = document.createElement("div");
-    root.className = "absolute select-none cursor-grab border w-[240px] bg-neutral-800 text-white flex flex-wrap group " + (type === PROCESS_TYPE.READER ? "border-gradient-green" : "border-gradient-blue");
+    root.className = "absolute select-none cursor-grab border w-[300px] bg-neutral-800 text-white flex flex-wrap group " + (type === PROCESS_TYPE.READER ? "border-gradient-green" : "border-gradient-blue");
 
     //
     const staticInformation = document.createElement("div");
@@ -139,7 +139,7 @@ export function createSandboxProcessDOM(type: PROCESS_TYPE, name: string, onClic
         if (!isDragging) return;
         let resultX = event.clientX - offsetX;
         let resultY = event.clientY - offsetY;
-        resultX = Math.max(0, Math.min(resultX, window.innerWidth - 240));
+        resultX = Math.max(0, Math.min(resultX, window.innerWidth - 300));
         resultY = Math.max(0, Math.min(resultY, window.innerHeight - 50));
         root.style.left = `${resultX}px`;
         root.style.top = `${resultY}px`;
@@ -191,9 +191,9 @@ export function createManagementPanelContentFileDOM(name: string, content: strin
  * @param content 
  * @returns 
  */
-export function createSandboxFileDOM(name: string, content: string, onDrag: (event: MouseEvent, x: number, y: number) => void, onClickDelete: (event: MouseEvent) => void) {
+export function createSandboxFileDOM(name: string, content: string, onClickDelete: (event: MouseEvent) => void) {
     const root = document.createElement("div");
-    root.className = "absolute select-none cursor-grab border w-[240px] border-neutral-900 bg-neutral-800 text-white flex flex-col items-start group";
+    root.className = "absolute select-none cursor-grab border w-[300px] border-neutral-900 bg-neutral-800 text-white flex flex-col items-start group";
 
     const staticInformation = document.createElement("div");
     staticInformation.className = "p-2 grow-0";
@@ -249,11 +249,10 @@ export function createSandboxFileDOM(name: string, content: string, onDrag: (eve
         if (!isDragging) return;
         let resultX = event.clientX - offsetX;
         let resultY = event.clientY - offsetY;
-        resultX = Math.max(0, Math.min(resultX, window.innerWidth - 240));
+        resultX = Math.max(0, Math.min(resultX, window.innerWidth - 300));
         resultY = Math.max(0, Math.min(resultY, window.innerHeight - 50));
         root.style.left = `${resultX}px`;
         root.style.top = `${resultY}px`;
-        onDrag(event, resultX, resultY);
     });
 
     /**

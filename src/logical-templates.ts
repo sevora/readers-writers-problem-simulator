@@ -38,7 +38,7 @@ export interface VisualizeContext {
  * @param statechange the callback whenever the process has a statechange.
  * @returns the process.
  */
-export function createReadByLetterSafe() {
+export function createReadByLetter() {
     return new Process<VisualizeContext>(
         () => {
             return [{ index: 0, output: "", type: PROCESS_TYPE.READER }, PROCESS_STATE.READY]
@@ -62,41 +62,12 @@ export function createReadByLetterSafe() {
     );
 }
 
-
-/**
- * Unsafe-version of reader process that reads by letter.
- * @param statechange the callback whenever the process has a statechange.
- * @returns the process.
- */
-export function createReadByLetterUnsafe() {
-    return new Process<VisualizeContext>(
-        () => {
-            return [{ index: 0, output: "", type: PROCESS_TYPE.READER }, PROCESS_STATE.READY]
-        },
-        (self, context, file) => {
-            const character = file.readAt(self, context.index);
-
-            if (character === FILE_ERROR.LOCKED) {
-                return PROCESS_STATE.WAITING;
-            }
-
-            if (character === FILE_ERROR.OUT_OF_BOUNDS) {
-                return PROCESS_STATE.EXIT;
-            }
-
-            context.output += character;
-            context.index++;
-        }
-    );
-}
-
-
 /**
  * Safe-version of reader process that reads by word.
  * @param statechange the callback whenever the process has a statechange.
  * @returns the process.
  */
-export function createReadByWordSafe() {
+export function createReadByWord() {
     return new Process<VisualizeContext>(
         () => {
             return [{ index: 0, output: "", type: PROCESS_TYPE.READER }, PROCESS_STATE.READY]
@@ -125,45 +96,12 @@ export function createReadByWordSafe() {
     );
 }
 
-
-/**
- * Unsafe-version of reader process that reads by word.
- * @param statechange the callback whenever the process has a statechange.
- * @returns the process.
- */
-export function createReadByWordUnsafe() {
-    return new Process<VisualizeContext>(
-        () => {
-            return [{ index: 0, output: "", type: PROCESS_TYPE.READER }, PROCESS_STATE.READY]
-        },
-        (self, context, file) => {
-            let character: string | FILE_ERROR = "";
-
-            while (true) {
-                character = file.readAt(self, context.index++);
-
-                if (character === FILE_ERROR.LOCKED) {
-                    return PROCESS_STATE.WAITING;
-                }
-
-                if (character === FILE_ERROR.OUT_OF_BOUNDS) {
-                    return PROCESS_STATE.EXIT;
-                }
-
-                context.output += character;
-                if (character === " ")
-                    break;
-            }
-        }
-    );
-}
-
 /**
  * Safe-version of writer process that converts all to uppercase.
  * @param statechange the callback whenever the process has a statechange.
  * @returns the process. 
  */
-export function createWriteUppercaseSafe() {
+export function createWriteUppercase() {
     return new Process<VisualizeContext>(
         () => {
             return [{ index: 0, output: "", type: PROCESS_TYPE.WRITER }, PROCESS_STATE.READY]
@@ -177,31 +115,6 @@ export function createWriteUppercaseSafe() {
 
             if (result === FILE_ERROR.OUT_OF_BOUNDS) {
                 file.unlock();
-                return PROCESS_STATE.EXIT;
-            }
-
-            context.index++
-        }
-    );
-}
-
-/**
- * Unsafe-version of writer process that converts all to uppercase.
- * @param statechange the callback whenever the process has a statechange.
- * @returns the process. 
- */
-export function createWriteUppercaseUnsafe() {
-    return new Process<VisualizeContext>(
-        () => {
-            return [{ index: 0, output: "", type: PROCESS_TYPE.WRITER }, PROCESS_STATE.READY]
-        },
-        (self, context, file) => {
-            const result = file.writeAt(self, context.index, (character) => character.toUpperCase());
-
-            if (result === FILE_ERROR.LOCKED)
-                return PROCESS_STATE.WAITING;
-
-            if (result === FILE_ERROR.OUT_OF_BOUNDS) {
                 return PROCESS_STATE.EXIT;
             }
 
@@ -216,7 +129,7 @@ export function createWriteUppercaseUnsafe() {
  * @param statechange the callback whenever the process has a statechange.
  * @returns the process.
  */
-export function createWriteLowercaseSafe() {
+export function createWriteLowercase() {
     return new Process<VisualizeContext>(
         () => {
             return [{ index: 0, output: "", type: PROCESS_TYPE.WRITER }, PROCESS_STATE.READY]
@@ -230,32 +143,6 @@ export function createWriteLowercaseSafe() {
 
             if (result === FILE_ERROR.OUT_OF_BOUNDS) {
                 file.unlock();
-                return PROCESS_STATE.EXIT;
-            }
-
-            context.index++
-        }
-    );
-}
-
-
-/**
- * Unsafe-version of writer process that converts all to lowercase.
- * @param statechange the callback whenever the process has a statechange.
- * @returns the process.
- */
-export function createWriteLowercaseUnsafe() {
-    return new Process<VisualizeContext>(
-        () => {
-            return [{ index: 0, output: "", type: PROCESS_TYPE.WRITER }, PROCESS_STATE.READY]
-        },
-        (self, context, file) => {
-            const result = file.writeAt(self, context.index, (character) => character.toLowerCase());
-
-            if (result === FILE_ERROR.LOCKED)
-                return PROCESS_STATE.WAITING;
-
-            if (result === FILE_ERROR.OUT_OF_BOUNDS) {
                 return PROCESS_STATE.EXIT;
             }
 
