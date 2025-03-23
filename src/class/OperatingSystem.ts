@@ -26,9 +26,14 @@ class OperatingSystem<C> {
     then: number;
 
     /**
-     * Fixed frames-per-second fr simulation loop.
+     * Fixed frames-per-second for simulation loop.
      */
     fps: number;
+
+    /**
+     * The interval calculated based on the frames-per-second.
+     */
+    interval: number;
 
     /**
      * Internal boolean indicating if simulation is running or not.
@@ -42,6 +47,7 @@ class OperatingSystem<C> {
         this.now = Date.now();
         this.then = this.now;
         this.fps = 1;
+        this.interval = 1000 / this.fps;
 
         this.running = false;
     }
@@ -99,10 +105,9 @@ class OperatingSystem<C> {
         
         this.now = Date.now();
         let elapsed = this.now - this.then;
-        let interval = 1000 / this.fps;
     
-        if (elapsed > interval) {
-            this.then = this.now - (elapsed % interval);
+        if (elapsed > this.interval) {
+            this.then = this.now - (elapsed % this.interval);
             this.step();
         }
     }

@@ -2,18 +2,19 @@ import 'material-icons/iconfont/material-icons.css';
 import './style.css';
 
 import OperatingSystem from './class/OperatingSystem';
-import Process from './class/Process';
+import Process, { PROCESS_STATE } from './class/Process';
 import VirtualFile from './class/VirtualFile';
 
-import { createReadByLetterUnsafe, createReadByWordUnsafe, createWriteLowercaseUnsafe, PROCESS_TYPE, VisualizeContext } from './logical-templates';
-import { createManagementPanelContentProcessDOM, createManagementPanelHeaderButtonDOM, createSandboxProcessDOM } from './dom-templates';
+import { createNietzscheFile, createCaesarFile, createEinsteinFile, createPangramFile, createReadByLetterUnsafe, createReadByWordUnsafe, createWriteLowercaseUnsafe, PROCESS_TYPE, VisualizeContext, createShakespeareFile } from './logical-templates';
+import { createManagementPanelContentFileDOM, createManagementPanelContentProcessDOM, createManagementPanelHeaderButtonDOM, createSandboxFileDOM, createSandboxProcessDOM } from './dom-templates';
 import { createReadByLetterSafe, createReadByWordSafe, createWriteLowercaseSafe, createWriteUppercaseSafe } from './logical-templates';
 
 const operatingSystem = new OperatingSystem<VisualizeContext>((process) => {
   /**
    * 
    */
-  process.context.statechange(process);
+  if (process.context.statechange)
+    process.context.statechange(process);
 });
 
 const managementPanelHeader = document.querySelector("#management-panel-header") as HTMLDivElement;
@@ -26,13 +27,103 @@ const counterProcess = document.querySelector("#counter-process") as HTMLDivElem
 const counterFile = document.querySelector("#counter-file") as HTMLDivElement;
 const sandbox = document.querySelector("#sandbox") as HTMLDivElement;
 const preventInteractionsCover = document.querySelector("#prevent-interactions-cover") as HTMLDivElement;
+const connectionCanvas = document.querySelector("#connection-canvas") as HTMLCanvasElement;
+const connectionCanvasContext = connectionCanvas.getContext("2d")!;
 
 const PROCESS_CAP = 6;
 const FILE_CAP = 6;
 
 let safeMode = true;
+let connectThis: [Process<VisualizeContext>, HTMLDivElement] | undefined;
+let now = Date.now();
+let then = now;
+let fps = 60;
+let interval = 1000 / fps;
+let width = window.innerWidth * 2;
+let height = window.innerHeight * 2;
+let mousePosition: [number, number] | undefined = undefined;
+
 let processEntities: [Process<VisualizeContext>, HTMLDivElement][] = [];
 let fileEntities: [VirtualFile, HTMLDivElement][] = [];
+
+/**
+ * 
+ */
+function setupConnectionCanvas() {
+  connectionCanvas.width = width;
+  connectionCanvas.height = height;
+  loopConnectionCanvas();
+}
+
+/**
+ * 
+ */
+function loopConnectionCanvas() {
+  window.requestAnimationFrame(loopConnectionCanvas);
+        
+  now = Date.now();
+  let elapsed = now - then;
+
+  if (elapsed > interval) {
+      then = now - (elapsed % interval);
+      updateConnectionCanvas();
+  }
+}
+
+/**
+ * 
+ */
+function updateConnectionCanvas() {
+  const context = connectionCanvasContext;
+  context.clearRect(0, 0, width, height);
+
+  if (connectThis && mousePosition) {
+      const [process, element] = connectThis;
+      const box = element.getBoundingClientRect();
+
+      context.strokeStyle = process.context.type === PROCESS_TYPE.READER ? "#00e24b" : "#4f9fdb";
+      context.lineWidth = 5;
+      context.globalAlpha = 0.5;
+
+      context.beginPath();
+      context.moveTo((parseInt(element.style.left) + box.width * 0.5) * 2, (parseInt(element.style.top) + box.height * 0.5) * 2);
+      context.lineTo(mousePosition[0], mousePosition[1]);
+      context.stroke();
+  }
+
+  for (const [process, processElement]  of processEntities) {
+    if (!process.file) continue;
+
+    for (const [file, fileElement] of fileEntities) {
+      if (process.file === file) {
+
+        const processBox = processElement.getBoundingClientRect();
+        const fileBox = fileElement.getBoundingClientRect();
+
+        const start = [
+          (parseInt(processElement.style.left) + processBox.width * 0.5) * 2, 
+          (parseInt(processElement.style.top) + processBox.height * 0.5) * 2
+        ];
+
+        const end = [
+          (parseInt(fileElement.style.left) + fileBox.width * 0.5) * 2, 
+          (parseInt(fileElement.style.top) + fileBox.height * 0.5) * 2
+        ]
+
+        context.strokeStyle = process.context.type === PROCESS_TYPE.READER ? "#00e24b" : "#4f9fdb";
+        context.lineWidth = 5;
+        context.globalAlpha = (process.state === PROCESS_STATE.RUNNING || !operatingSystem.running) ? 1.0 : 0.25;
+
+        context.beginPath();
+        context.moveTo(start[0], start[1]);
+        context.lineTo(end[0], end[1]);
+        context.stroke();
+        break;
+      }
+    }
+  }
+
+}
 
 /**
  * 
@@ -100,15 +191,27 @@ function displayManagementPanelContentProcesses() {
       const generator = safeMode ? safeGenerator : unsafeGenerator;
 
       // create process dom element here
-
       const handleConnect = (_event: MouseEvent) => {
+        if (process.file || connectThis) {
+          connectThis = undefined;
+          mousePosition = undefined;
+          process.disconnect();
+          return;
+        }
 
+        connectThis = [process, processDOM];
       }
 
       const handleDelete = (_event: MouseEvent) => {
         for (let index = processEntities.length - 1; index >= 0; --index) {
-          if (processEntities[index][0] === process) processEntities.splice(index, 1);
+          if (processEntities[index][0] === process) {
+            processEntities.splice(index, 1);
+            break;
+          }
         }
+
+        connectThis = undefined;
+        mousePosition = undefined;
         operatingSystem.removeProcess(process);
         processDOM.remove();
         updateCounterDisplay();
@@ -120,10 +223,11 @@ function displayManagementPanelContentProcesses() {
       }
 
       const processDOM = createSandboxProcessDOM(processType, name, handleConnect, handleDelete, handleDrag);
-      
-      const process = generator(self => {
+      const process = generator();
 
-      });
+      process.context.statechange = (self) => {
+
+      }
 
       operatingSystem.addProcess(process);
       sandbox.appendChild(processDOM);
@@ -159,6 +263,71 @@ function updateProcessesDisplayRank() {
  */
 function displayManagementPanelContentFiles() {
   managementPanelContent.replaceChildren();
+
+  const fileGenerators = [
+    createCaesarFile,
+    createEinsteinFile,
+    createNietzscheFile,
+    createPangramFile,
+    createShakespeareFile
+  ];
+
+  for (let index = 0; index < fileGenerators.length; ++index) {
+    const generator = fileGenerators[index]
+    const { filename, content } = generator();
+
+    const button = createManagementPanelContentFileDOM(filename, content);
+
+    button.addEventListener("click", function(event) {
+      const file = generator();
+      
+      const handleDrag = (event: MouseEvent, x: number, y: number) => {
+
+      }
+
+      const handleDelete = (event: MouseEvent) => {
+        for (const [process] of processEntities) {
+          if (process.file === file) {
+            process.disconnect();
+          }
+        }
+        
+        fileDOM.remove();
+        
+        for (let index = fileEntities.length-1; index >= 0; --index) {
+          if (fileEntities[index][0] === file) {
+            fileEntities.splice(index, 1);
+            break;
+          }
+        }
+      }
+
+      const fileDOM = createSandboxFileDOM(filename, content, handleDrag, handleDelete);
+
+      fileDOM.addEventListener("mousedown", event => {
+        if (!connectThis) return;
+        const process = connectThis[0];
+        process.connect(file);
+        connectThis = undefined;
+        mousePosition = undefined;
+      });
+
+      file.statechange = (self) => {
+
+      }
+
+      sandbox.appendChild(fileDOM);
+      fileEntities.push([file, fileDOM]);
+
+      const rectangle = fileDOM.getBoundingClientRect();
+      const centerY = window.innerHeight * 0.5 - rectangle.height * 0.5;
+      fileDOM.style.left = window.innerWidth * 0.5 - rectangle.width * 0.5 + "px";
+      fileDOM.style.top = centerY + "px";
+    });
+
+    managementPanelContent.appendChild(button);
+
+  }
 }
 
 /**
@@ -210,4 +379,17 @@ function updateCounterDisplay() {
   counterFile.innerHTML = `${fileEntities.length}/${FILE_CAP}`;
 }
 
+document.body.addEventListener("mousemove", event => {
+  if (!connectThis) return;
+  const box = connectionCanvas.getBoundingClientRect();
+  let scaleX = connectionCanvas.width / box.width;
+  let scaleY = connectionCanvas.height / box.height;
+
+  mousePosition = [
+    (event.clientX - box.left) * scaleX,
+    (event.clientY - box.top) * scaleY,
+  ];
+});
+
+setupConnectionCanvas();
 managementPanelHeaderButtons[0].click();

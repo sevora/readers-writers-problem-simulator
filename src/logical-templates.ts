@@ -30,7 +30,7 @@ export interface VisualizeContext {
     /**
      * This is a callback to be called whenever the process updates.
      */
-    statechange: (self: Process<VisualizeContext>) => void;
+    statechange?: (self: Process<VisualizeContext>) => void;
 }
 
 /**
@@ -38,10 +38,10 @@ export interface VisualizeContext {
  * @param statechange the callback whenever the process has a statechange.
  * @returns the process.
  */
-export function createReadByLetterSafe(statechange: (self: Process<VisualizeContext>) => void) {
+export function createReadByLetterSafe() {
     return new Process<VisualizeContext>(
         () => {
-            return [{ index: 0, output: "", type: PROCESS_TYPE.READER, statechange }, PROCESS_STATE.READY]
+            return [{ index: 0, output: "", type: PROCESS_TYPE.READER }, PROCESS_STATE.READY]
         },
         (self, context, file) => {
             file.lock(self, LOCK_MODE.READ);
@@ -68,10 +68,10 @@ export function createReadByLetterSafe(statechange: (self: Process<VisualizeCont
  * @param statechange the callback whenever the process has a statechange.
  * @returns the process.
  */
-export function createReadByLetterUnsafe(statechange: (self: Process<VisualizeContext>) => void) {
+export function createReadByLetterUnsafe() {
     return new Process<VisualizeContext>(
         () => {
-            return [{ index: 0, output: "", type: PROCESS_TYPE.READER, statechange }, PROCESS_STATE.READY]
+            return [{ index: 0, output: "", type: PROCESS_TYPE.READER }, PROCESS_STATE.READY]
         },
         (self, context, file) => {
             const character = file.readAt(self, context.index);
@@ -96,10 +96,10 @@ export function createReadByLetterUnsafe(statechange: (self: Process<VisualizeCo
  * @param statechange the callback whenever the process has a statechange.
  * @returns the process.
  */
-export function createReadByWordSafe(statechange: (self: Process<VisualizeContext>) => void) {
+export function createReadByWordSafe() {
     return new Process<VisualizeContext>(
         () => {
-            return [{ index: 0, output: "", type: PROCESS_TYPE.READER, statechange }, PROCESS_STATE.READY]
+            return [{ index: 0, output: "", type: PROCESS_TYPE.READER }, PROCESS_STATE.READY]
         },
         (self, context, file) => {
             file.lock(self, LOCK_MODE.READ);
@@ -131,10 +131,10 @@ export function createReadByWordSafe(statechange: (self: Process<VisualizeContex
  * @param statechange the callback whenever the process has a statechange.
  * @returns the process.
  */
-export function createReadByWordUnsafe(statechange: (self: Process<VisualizeContext>) => void) {
+export function createReadByWordUnsafe() {
     return new Process<VisualizeContext>(
         () => {
-            return [{ index: 0, output: "", type: PROCESS_TYPE.READER, statechange }, PROCESS_STATE.READY]
+            return [{ index: 0, output: "", type: PROCESS_TYPE.READER }, PROCESS_STATE.READY]
         },
         (self, context, file) => {
             let character: string | FILE_ERROR = "";
@@ -163,10 +163,10 @@ export function createReadByWordUnsafe(statechange: (self: Process<VisualizeCont
  * @param statechange the callback whenever the process has a statechange.
  * @returns the process. 
  */
-export function createWriteUppercaseSafe(statechange: (self: Process<VisualizeContext>) => void) {
+export function createWriteUppercaseSafe() {
     return new Process<VisualizeContext>(
         () => {
-            return [{ index: 0, output: "", type: PROCESS_TYPE.WRITER, statechange }, PROCESS_STATE.READY]
+            return [{ index: 0, output: "", type: PROCESS_TYPE.WRITER }, PROCESS_STATE.READY]
         },
         (self, context, file) => {
             file.lock(self, LOCK_MODE.WRITE);
@@ -190,10 +190,10 @@ export function createWriteUppercaseSafe(statechange: (self: Process<VisualizeCo
  * @param statechange the callback whenever the process has a statechange.
  * @returns the process. 
  */
-export function createWriteUppercaseUnsafe(statechange: (self: Process<VisualizeContext>) => void) {
+export function createWriteUppercaseUnsafe() {
     return new Process<VisualizeContext>(
         () => {
-            return [{ index: 0, output: "", type: PROCESS_TYPE.WRITER, statechange }, PROCESS_STATE.READY]
+            return [{ index: 0, output: "", type: PROCESS_TYPE.WRITER }, PROCESS_STATE.READY]
         },
         (self, context, file) => {
             const result = file.writeAt(self, context.index, (character) => character.toUpperCase());
@@ -216,10 +216,10 @@ export function createWriteUppercaseUnsafe(statechange: (self: Process<Visualize
  * @param statechange the callback whenever the process has a statechange.
  * @returns the process.
  */
-export function createWriteLowercaseSafe(statechange: (self: Process<VisualizeContext>) => void) {
+export function createWriteLowercaseSafe() {
     return new Process<VisualizeContext>(
         () => {
-            return [{ index: 0, output: "", type: PROCESS_TYPE.WRITER, statechange }, PROCESS_STATE.READY]
+            return [{ index: 0, output: "", type: PROCESS_TYPE.WRITER }, PROCESS_STATE.READY]
         },
         (self, context, file) => {
             file.lock(self, LOCK_MODE.WRITE);
@@ -244,10 +244,10 @@ export function createWriteLowercaseSafe(statechange: (self: Process<VisualizeCo
  * @param statechange the callback whenever the process has a statechange.
  * @returns the process.
  */
-export function createWriteLowercaseUnsafe(statechange: (self: Process<VisualizeContext>) => void) {
+export function createWriteLowercaseUnsafe() {
     return new Process<VisualizeContext>(
         () => {
-            return [{ index: 0, output: "", type: PROCESS_TYPE.WRITER, statechange }, PROCESS_STATE.READY]
+            return [{ index: 0, output: "", type: PROCESS_TYPE.WRITER }, PROCESS_STATE.READY]
         },
         (self, context, file) => {
             const result = file.writeAt(self, context.index, (character) => character.toLowerCase());
@@ -268,9 +268,10 @@ export function createWriteLowercaseUnsafe(statechange: (self: Process<Visualize
  * 
  * @returns 
  */
-export function createPangramFile() {
-    return new VirtualFile("pangram.txt", "The quick brown fox jumps over the lazy dog.");
+export function createCaesarFile() {
+    return new VirtualFile("caesar.txt", "I came, I saw, I conquered.");
 }
+
 
 /**
  * 
@@ -280,18 +281,27 @@ export function createEinsteinFile() {
     return new VirtualFile("einstein.txt", "I have no special talent. I am only passionately curious.");
 }
 
+
 /**
  * 
  * @returns 
  */
-export function createBruceLeeFile() {
-    return new VirtualFile("bruce_lee.txt", "The successful warrior is the average man, with laser-like focus.");
+export function createNietzscheFile() {
+    return new VirtualFile("nietzsche.txt", "That which does not kill us makes us stronger.");
 }
 
 /**
  * 
  * @returns 
  */
-export function createCaesarFile() {
-    return new VirtualFile("caesar.txt", "I came, I saw, I conquered");
+export function createPangramFile() {
+    return new VirtualFile("pangram.txt", "The quick brown fox jumps over the lazy dog.");
+}
+
+/**
+ * 
+ * @returns 
+ */
+export function createShakespeareFile() {
+    return new VirtualFile("shakespeare.txt", "It is not in the stars to hold our destiny but in ourselves.");
 }

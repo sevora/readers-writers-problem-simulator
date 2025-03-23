@@ -70,6 +70,13 @@ class Process<C> {
     }
 
     /**
+     * Use this to disconnect process to existing file.
+     */
+    disconnect() {
+        this.file = undefined;
+    }
+
+    /**
      * Use this to update the process consequently running the
      * defined step function and updating the state accordingly.
      */

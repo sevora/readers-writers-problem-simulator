@@ -25,6 +25,7 @@ class VirtualFile {
     content: string;
     locker?: Process<any>;
     lockMode?: LOCK_MODE;
+    statechange?: (self: VirtualFile) => void;
 
     /**
      * Create a new virtual file.
@@ -65,6 +66,7 @@ class VirtualFile {
             return FILE_ERROR.OUT_OF_BOUNDS;
         const character = this.content[index];
         this.content = this.content.substring(0, index) + transform(character) + this.content.substring(index + 1);
+        if (this.statechange) this.statechange(this);
     }
 
     /**

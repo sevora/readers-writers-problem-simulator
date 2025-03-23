@@ -12,7 +12,7 @@
   <!-- Simulation Process Management Control -->
   <div class="z-10 text-sm text-white p-2 fixed rounded-md right-[50px] top-2 flex flex-col items-center justify-center gap-2 bg-neutral-800/90">
     <div id="management-panel-header" class="flex gap-2 *:px-2 *:py-1 *:rounded-md *:cursor-pointer *:hover:bg-neutral-700"></div>
-    <div id="management-panel-content" class="w-full flex items-start flex-col gap-2 *:w-full *:text-left *:px-2 *:py-1 *:rounded-sm *:cursor-pointer *:hover:bg-neutral-700">
+    <div id="management-panel-content" class="w-full max-h-72 flex items-start flex-col gap-2 *:w-full *:text-left *:rounded-sm *:cursor-pointer *:hover:bg-neutral-700 overflow-auto">
     </div>
   </div>
 
@@ -40,18 +40,12 @@
     <div class="flex">File Count: <div id="counter-file" class="ml-auto">0/6</div></div>
   </div>
 
-  <div id="sandbox">
-    <!-- File -->
-    <div>
-
-    </div>
-
-
-  </div>
+  <div id="sandbox"></div>
 
   <!-- Screen cover to prevent interaction on certain states -->
   <div id="prevent-interactions-cover" class="w-screen h-screen fixed cursor-not-allowed hidden z-40"></div>
 
+  <canvas id="connection-canvas" class="w-screen h-screen"></canvas>
   <script type="module" src="/src/main.ts"></script>
 </body>
 
