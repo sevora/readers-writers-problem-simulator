@@ -12,7 +12,7 @@ export function createManagementPanelContentProcessDOM(type: PROCESS_TYPE, name:
 
     //
     const mark = document.createElement("div");
-    mark.className = "text-xs px-2 py-1 rounded-xl " + (type === PROCESS_TYPE.READER ? "bg-green-500" : "bg-blue-500");
+    mark.className = "text-sm px-2 py-1 rounded-xl " + (type === PROCESS_TYPE.READER ? "bg-green-500" : "bg-blue-500");
     mark.innerHTML = (type === PROCESS_TYPE.READER ? "Reader" : "Writer");
 
     //
@@ -56,7 +56,7 @@ export function createSandboxProcessDOM(type: PROCESS_TYPE, name: string, onClic
 
     //
     const mark = document.createElement("div");
-    mark.className = "text-sm px-2 py-1 rounded-full " + (type === PROCESS_TYPE.READER ? "bg-green-500" : "bg-blue-500");
+    mark.className = " px-2 py-1 rounded-full " + (type === PROCESS_TYPE.READER ? "bg-green-500" : "bg-blue-500");
     mark.innerHTML = (type === PROCESS_TYPE.READER ? "Reader" : "Writer");
 
     //
@@ -64,7 +64,7 @@ export function createSandboxProcessDOM(type: PROCESS_TYPE, name: string, onClic
     label.innerHTML = name;
 
     const rank = document.createElement("div");
-    rank.className = "rank text-sm flex px-2 ml-auto justify-center items-center rounded-xl bg-neutral-900";
+    rank.className = "rank  flex px-2 ml-auto justify-center items-center rounded-xl bg-neutral-900";
     rank.innerHTML = "#0";
 
     staticInformation.append(mark, label, rank);
@@ -166,7 +166,7 @@ export function createSandboxProcessDOM(type: PROCESS_TYPE, name: string, onClic
  */
 export function createManagementPanelContentFileDOM(name: string, content: string) {
     const root = document.createElement("div");
-    root.className = "none cursor-grab border !w-54 text-xs border-neutral-900 bg-neutral-800/80 text-white flex flex-col items-start group";
+    root.className = "none cursor-grab border !w-54 text-sm border-neutral-900 bg-neutral-800/80 text-white flex flex-col items-start group";
 
     const staticInformation = document.createElement("div");
     staticInformation.className = "p-2 grow-0";
