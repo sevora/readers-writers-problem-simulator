@@ -247,15 +247,20 @@ function displayManagementPanelContentProcesses() {
 
         switch (self.state) {
           case PROCESS_STATE.READY:
+            processDOM.classList.add("ready-process");
+            processDOM.classList.remove("running-process", "waiting-process", "exit-process");
             break;
           case PROCESS_STATE.RUNNING:
-            processDOM.classList.remove("opacity-50");
+            processDOM.classList.add("running-process");
+            processDOM.classList.remove("ready-process", "waiting-process", "exit-process");
             break;
           case PROCESS_STATE.WAITING:
-            processDOM.classList.add("opacity-50");
+            processDOM.classList.add("waiting-process");
+            processDOM.classList.remove("ready-process", "running-process", "exit-process");
             break;
           case PROCESS_STATE.EXIT:
-            processDOM.classList.remove("opacity-50");
+            processDOM.classList.add("exit-process");
+            processDOM.classList.remove("ready-process", "running-process", "waiting-process");
             break;
         }
       }
@@ -370,6 +375,7 @@ function displayManagementPanelContentFiles() {
  */
 function displayManagementPanelContentOverview() {
   managementPanelContent.replaceChildren();
+
 }
 
 /**
@@ -407,11 +413,15 @@ function stopSimulation() {
   controlSolutionToggle.disabled = false;
 
   for (const [_process, processDOM] of processEntities) {
-    processDOM.classList.remove("opacity-50");
+    processDOM.classList.remove("ready-process", "running-process", "waiting-process", "exit-process");
   }
 
   preventInteractionsCover.classList.replace("block", "hidden");
 }
+
+/**
+ * 
+ */
 function resetSimulation() {
   stopSimulation();
   operatingSystem.reset();
@@ -427,6 +437,24 @@ function resetSimulation() {
     file.reset();
     fileDOM.querySelector('.content')!.innerHTML = file.content;
   }
+}
+
+/**
+ * 
+ * @returns 
+ */
+function getConnectionCount() {
+  return processEntities.filter(([process]) => process.file).length;
+}
+
+/**
+ * 
+ */
+function generateRandomString(length: number) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const array = new Uint32Array(length);
+  window.crypto.getRandomValues(array);
+  return Array.from(array, (value) => characters[value % characters.length]).join('');
 }
 
 /**
@@ -513,16 +541,12 @@ document.body.addEventListener("mousemove", event => {
 /**
  * 
  */
-function generateRandomString(length: number) {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const array = new Uint32Array(length);
-  window.crypto.getRandomValues(array);
-  return Array.from(array, (value) => characters[value % characters.length]).join('');
-}
-
-function getConnectionCount() {
-  return processEntities.filter(([process]) => process.file).length;
-}
+window.addEventListener("resize", _event => {
+  width = window.innerWidth * 2;
+  height = window.innerHeight * 2;
+  connectionCanvas.width = width;
+  connectionCanvas.height = height;
+})
 
 setupConnectionCanvas();
 managementPanelHeaderButtons[0].click();
