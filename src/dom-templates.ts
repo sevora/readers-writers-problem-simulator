@@ -204,7 +204,7 @@ export function createSandboxFileDOM(name: string, content: string, onClickDelet
     staticInformation.append(filepath);
 
     const contentContainer = document.createElement("div");
-    contentContainer.className = "bg-neutral-900 w-full p-2";
+    contentContainer.className = "content bg-neutral-900 w-full p-2";
     contentContainer.innerHTML = content;
 
     //

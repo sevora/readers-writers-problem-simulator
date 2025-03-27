@@ -86,6 +86,12 @@ class Process<C> {
             if (state) this.state = state;
         }
     }
+
+    reset() {
+        const unpack = this.initialize();
+        this.context = { ...this.context, ...unpack[0] };
+        this.state = unpack[1];
+    }
 }
 
 export default Process;

@@ -16,6 +16,12 @@ class OperatingSystem<C> {
     afterProcessUpdate?: (process: Process<C>) => void;
 
     /**
+     * This function is called after all the processes are 
+     * on the exit state.
+     */
+    afterAllProcessExit?: () => void;
+
+    /**
      * Internal timekeeping for simulation loop.
      */
     now: number;
@@ -31,23 +37,16 @@ class OperatingSystem<C> {
     fps: number;
 
     /**
-     * The interval calculated based on the frames-per-second.
-     */
-    interval: number;
-
-    /**
      * Internal boolean indicating if simulation is running or not.
      */
     running: boolean;
 
-    constructor(afterProcessUpdate?: (process: Process<C>) => void) {
+    constructor() {
         this.processes = [];
-        this.afterProcessUpdate = afterProcessUpdate;
         
         this.now = Date.now();
         this.then = this.now;
-        this.fps = 1;
-        this.interval = 1000 / this.fps;
+        this.fps = 12;
 
         this.running = false;
     }
@@ -101,13 +100,14 @@ class OperatingSystem<C> {
      */
     loop() {
         if (!this.running) return;
-        window.requestAnimationFrame(this.loop);
+        window.requestAnimationFrame(this.loop.bind(this));
         
         this.now = Date.now();
-        let elapsed = this.now - this.then;
+        const elapsed = this.now - this.then;
+        const interval = 1000 / this.fps;
     
-        if (elapsed > this.interval) {
-            this.then = this.now - (elapsed % this.interval);
+        if (elapsed > interval) {
+            this.then = this.now - (elapsed % interval);
             this.step();
         }
     }
@@ -116,13 +116,22 @@ class OperatingSystem<C> {
      * Internal step function for the looping.
      */
     step() {
+        const hasExitState = [];
+
         for (let process of this.processes) {
-            if (process.state !== PROCESS_STATE.EXIT) {
-                process.state = PROCESS_STATE.RUNNING;
-                process.update();
-                if (this.afterProcessUpdate) 
-                    this.afterProcessUpdate(process);
-            } 
+            if (process.state === PROCESS_STATE.EXIT || !process.file) {
+                hasExitState.push(true);
+                continue;
+            }
+
+            process.state = PROCESS_STATE.RUNNING;
+            process.update();
+            if (this.afterProcessUpdate) 
+                this.afterProcessUpdate(process); 
+        }
+
+        if (hasExitState.length === this.processes.length && this.afterAllProcessExit) {
+            this.afterAllProcessExit();
         }
     }
 
@@ -138,8 +147,9 @@ class OperatingSystem<C> {
      */
     reset() {
         this.running = false;
+
         for (let process of this.processes) {
-            process.initialize();
+            process.reset();
         }
     }
 

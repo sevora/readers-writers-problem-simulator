@@ -34,7 +34,7 @@ export interface VisualizeContext {
 }
 
 /**
- * Safe-version of reader process that reads by letter.
+ * Reader process that reads by letter.
  * @param statechange the callback whenever the process has a statechange.
  * @returns the process.
  */
@@ -63,41 +63,7 @@ export function createReadByLetter() {
 }
 
 /**
- * Safe-version of reader process that reads by word.
- * @param statechange the callback whenever the process has a statechange.
- * @returns the process.
- */
-export function createReadByWord() {
-    return new Process<VisualizeContext>(
-        () => {
-            return [{ index: 0, output: "", type: PROCESS_TYPE.READER }, PROCESS_STATE.READY]
-        },
-        (self, context, file) => {
-            file.lock(self, LOCK_MODE.READ);
-            let character: string | FILE_ERROR = "";
-
-            while (true) {
-                character = file.readAt(self, context.index++);
-
-                if (character === FILE_ERROR.LOCKED) {
-                    return PROCESS_STATE.WAITING;
-                }
-
-                if (character === FILE_ERROR.OUT_OF_BOUNDS) {
-                    file.unlock();
-                    return PROCESS_STATE.EXIT;
-                }
-
-                context.output += character;
-                if (character === " ")
-                    break;
-            }
-        }
-    );
-}
-
-/**
- * Safe-version of writer process that converts all to uppercase.
+ * Writer process that converts all to uppercase.
  * @param statechange the callback whenever the process has a statechange.
  * @returns the process. 
  */
@@ -123,9 +89,38 @@ export function createWriteUppercase() {
     );
 }
 
+/**
+ * Writer process that converts all to lowercase.
+ * @param statechange the callback whenever the process has a statechange.
+ * @returns the process.
+ */
+export function createWriteDistort() {
+    return new Process<VisualizeContext>(
+        () => {
+            return [{ index: 0, output: "", type: PROCESS_TYPE.WRITER }, PROCESS_STATE.READY]
+        },
+        (self, context, file) => {
+            file.lock(self, LOCK_MODE.WRITE);
+            const result = file.writeAt(self, context.index, (_character) => 
+                ["$","%","^", "=", "+", "!"][Math.floor(Math.random() * 6)]
+            );
+
+            if (result === FILE_ERROR.LOCKED)
+                return PROCESS_STATE.WAITING;
+
+            if (result === FILE_ERROR.OUT_OF_BOUNDS) {
+                file.unlock();
+                return PROCESS_STATE.EXIT;
+            }
+
+            context.index++
+        }
+    );
+}
+
 
 /**
- * Safe-version of writer process that converts all to lowercase.
+ * Writer process that converts all to lowercase.
  * @param statechange the callback whenever the process has a statechange.
  * @returns the process.
  */

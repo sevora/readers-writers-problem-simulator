@@ -23,6 +23,7 @@ export const enum LOCK_MODE {
 class VirtualFile {
     filename: string;
     content: string;
+    backupContent: string;
     locker?: Process<any>;
     lockMode?: LOCK_MODE;
 
@@ -36,6 +37,7 @@ class VirtualFile {
     constructor(filename: string, content: string) {
         this.filename = filename;
         this.content = content;
+        this.backupContent = content;
         this.locker = undefined;
         this.lockMode = undefined;
         this.disabledLock = false;
@@ -106,6 +108,13 @@ class VirtualFile {
      */
     enableLock() {
         this.disabledLock = false;
+    }
+
+    /**
+     * 
+     */
+    reset() {
+        this.content = this.backupContent;
     }
 }
 
