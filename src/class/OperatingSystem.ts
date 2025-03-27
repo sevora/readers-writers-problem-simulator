@@ -125,9 +125,15 @@ class OperatingSystem<C> {
             }
 
             process.state = PROCESS_STATE.RUNNING;
-            process.update();
-            if (this.afterProcessUpdate) 
-                this.afterProcessUpdate(process); 
+
+            const count = window.crypto.getRandomValues(new Uint8Array(1))[0] > 128 ? 1 : 2;
+
+            for (let attempts = 0; attempts < count; ++attempts) {
+                process.update();
+
+                if (this.afterProcessUpdate) 
+                    this.afterProcessUpdate(process); 
+            }   
         }
 
         if (hasExitState.length === this.processes.length && this.afterAllProcessExit) {
