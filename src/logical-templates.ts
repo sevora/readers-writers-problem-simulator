@@ -150,8 +150,8 @@ export function createWriteLowercase() {
  * 
  * @returns 
  */
-export function createCaesarFile() {
-    return new VirtualFile("caesar.txt", "I came, I saw, I conquered.");
+export function createRooseveltFile() {
+    return new VirtualFile("roosevelt.txt", "Great minds discuss ideas; average minds discuss events; small minds discuss people.");
 }
 
 
@@ -176,8 +176,8 @@ export function createNietzscheFile() {
  * 
  * @returns 
  */
-export function createPangramFile() {
-    return new VirtualFile("pangram.txt", "The quick brown fox jumps over the lazy dog.");
+export function createAristotleFile() {
+    return new VirtualFile("aristotle.txt", "We are what we repeatedly do; excellence, then, is not an act but a habit.");
 }
 
 /**

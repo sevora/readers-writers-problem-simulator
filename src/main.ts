@@ -5,7 +5,7 @@ import OperatingSystem from './class/OperatingSystem';
 import Process, { PROCESS_STATE } from './class/Process';
 import VirtualFile from './class/VirtualFile';
 
-import { createNietzscheFile, createCaesarFile, createEinsteinFile, createPangramFile, PROCESS_TYPE, VisualizeContext, createShakespeareFile, createWriteDistort } from './logical-templates';
+import { createNietzscheFile, createRooseveltFile, createEinsteinFile, createAristotleFile, PROCESS_TYPE, VisualizeContext, createShakespeareFile, createWriteDistort } from './logical-templates';
 import { createManagementPanelContentFileDOM, createManagementPanelContentProcessDOM, createManagementPanelHeaderButtonDOM, createSandboxFileDOM, createSandboxProcessDOM } from './dom-templates';
 import { createReadByLetter, createWriteLowercase, createWriteUppercase } from './logical-templates';
 
@@ -27,7 +27,7 @@ const connectionCanvasContext = connectionCanvas.getContext("2d")!;
 const PROCESS_CAP = 5;
 const FILE_CAP = 5;
 
-let resourceLockingEnabled = true;
+let resourceLockingEnabled = false;
 let connectThis: [Process<VisualizeContext>, HTMLDivElement] | undefined;
 let processEntities: [Process<VisualizeContext>, HTMLDivElement][] = [];
 let fileEntities: [VirtualFile, HTMLDivElement][] = [];
@@ -125,7 +125,11 @@ function updateConnectionCanvas() {
 
         context.strokeStyle = process.context.type === PROCESS_TYPE.READER ? "#00e24b" : "#4f9fdb";
         context.lineWidth = 5;
-        context.globalAlpha = (process.state === PROCESS_STATE.RUNNING || !operatingSystem.running) ? 1.0 : 0.25;
+        context.globalAlpha = 1.0;
+
+        if ((process.state === PROCESS_STATE.WAITING || process.state === PROCESS_STATE.EXIT) && operatingSystem.running) {
+          context.globalAlpha = 0.25;
+        }
 
         context.beginPath();
         context.moveTo(start[0], start[1]);
@@ -293,10 +297,10 @@ function displayManagementPanelContentFiles() {
   managementPanelContent.replaceChildren();
 
   const fileGenerators = [
-    createCaesarFile,
+    createRooseveltFile,
     createEinsteinFile,
     createNietzscheFile,
-    createPangramFile,
+    createAristotleFile,
     createShakespeareFile
   ];
 
@@ -488,6 +492,7 @@ controlPlayStopButton.addEventListener("click", _event => {
   }
   
   resetSimulation();
+  console.log(processEntities)
   operatingSystem.start();
   controlPlayStopButton.querySelector("span")!.innerHTML = "stop";
 

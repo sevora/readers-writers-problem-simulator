@@ -56,15 +56,16 @@ export function createSandboxProcessDOM(type: PROCESS_TYPE, name: string, onClic
 
     //
     const mark = document.createElement("div");
-    mark.className = " px-2 py-1 rounded-full " + (type === PROCESS_TYPE.READER ? "bg-green-500" : "bg-blue-500");
+    mark.className = "px-2 py-1 rounded-full " + (type === PROCESS_TYPE.READER ? "bg-green-500" : "bg-blue-500");
     mark.innerHTML = (type === PROCESS_TYPE.READER ? "Reader" : "Writer");
 
     //
     const label = document.createElement("div");
+    label.className = "flex items-center";
     label.innerHTML = name;
 
     const rank = document.createElement("div");
-    rank.className = "rank  flex px-2 ml-auto justify-center items-center rounded-xl bg-neutral-900";
+    rank.className = "rank flex px-2 ml-auto justify-center items-center rounded-xl bg-neutral-900";
     rank.innerHTML = "#0";
 
     staticInformation.append(mark, label, rank);
@@ -77,7 +78,7 @@ export function createSandboxProcessDOM(type: PROCESS_TYPE, name: string, onClic
         output.innerHTML = "Output: ";
 
         const actualOutput = document.createElement("span");
-        actualOutput.className = "output";
+        actualOutput.className = "output break-words";
         output.append(actualOutput);
         root.append(output);
     }
@@ -204,7 +205,7 @@ export function createSandboxFileDOM(name: string, content: string, onClickDelet
     staticInformation.append(filepath);
 
     const contentContainer = document.createElement("div");
-    contentContainer.className = "content bg-neutral-900 w-full p-2";
+    contentContainer.className = "content break-words bg-neutral-900 w-full p-2";
     contentContainer.innerHTML = content;
 
     //

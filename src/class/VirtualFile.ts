@@ -40,7 +40,7 @@ class VirtualFile {
         this.backupContent = content;
         this.locker = undefined;
         this.lockMode = undefined;
-        this.disabledLock = false;
+        this.disabledLock = true;
     }
 
      /**
@@ -115,6 +115,8 @@ class VirtualFile {
      */
     reset() {
         this.content = this.backupContent;
+        this.locker = undefined;
+        this.lockMode = undefined;
     }
 }
 

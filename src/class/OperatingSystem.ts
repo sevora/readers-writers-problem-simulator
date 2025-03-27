@@ -126,8 +126,8 @@ class OperatingSystem<C> {
 
             process.state = PROCESS_STATE.RUNNING;
 
-            const count = window.crypto.getRandomValues(new Uint8Array(1))[0] > 128 ? 1 : 2;
-
+            const count = 1 + Math.floor(Math.random() * 3);
+            
             for (let attempts = 0; attempts < count; ++attempts) {
                 process.update();
 
