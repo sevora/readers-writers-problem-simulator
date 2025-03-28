@@ -43,7 +43,8 @@ let mousePosition: [number, number] | undefined = undefined;
 const operatingSystem = new OperatingSystem<VisualizeContext>();
 
 /**
- * 
+ * We set the callback of every process update to call
+ * the visualizable context statechange on that specific process.
  */
 operatingSystem.afterProcessUpdate = (process) => {
   if (process.context.statechange)
@@ -51,7 +52,8 @@ operatingSystem.afterProcessUpdate = (process) => {
 }
 
 /**
- * 
+ * When all the processes are terminated we want to 
+ * stop the simulation as a whole including the graphical interface.
  */
 operatingSystem.afterAllProcessExit = () => {
   setTimeout(() => {
@@ -60,7 +62,8 @@ operatingSystem.afterAllProcessExit = () => {
 }
 
 /**
- * 
+ * This is used to setup the canvas once.
+ * We set up its size and call the render loop.
  */
 function setupConnectionCanvas() {
   connectionCanvas.width = width;
@@ -69,7 +72,9 @@ function setupConnectionCanvas() {
 }
 
 /**
- * 
+ * We want to loop the connection canvas.
+ * This should display the connections of each 
+ * node efficiently.
  */
 function loopConnectionCanvas() {
   window.requestAnimationFrame(loopConnectionCanvas);
@@ -79,17 +84,21 @@ function loopConnectionCanvas() {
 
   if (elapsed > interval) {
     then = now - (elapsed % interval);
-    updateConnectionCanvas();
+    renderConnectionCanvas();
   }
 }
 
 /**
- * 
+ * We define this as the rendering of the connection canvas.
+ * The only point of this is to draw lines accordingly from processes
+ * to files.
  */
-function updateConnectionCanvas() {
+function renderConnectionCanvas() {
   const context = connectionCanvasContext;
   context.clearRect(0, 0, width, height);
 
+  // This block specifies how to render attempts 
+  // when connecting a process to a file.
   if (connectThis && mousePosition) {
     const [process, element] = connectThis;
     const box = element.getBoundingClientRect();
@@ -104,6 +113,8 @@ function updateConnectionCanvas() {
     context.stroke();
   }
 
+  // This displays the existing connections of processes
+  // to the files accordingly.
   for (const [process, processElement] of processEntities) {
     if (!process.file) continue;
 
@@ -143,7 +154,8 @@ function updateConnectionCanvas() {
 }
 
 /**
- * 
+ * We use this to remove the classes that will make 
+ * it seem that the current header in the panel is selected.
  */
 function clearManagementPanelHeaderSelection() {
   for (const child of managementPanelHeader.children) {
@@ -152,7 +164,8 @@ function clearManagementPanelHeaderSelection() {
 }
 
 /**
- * 
+ * This adds all the options in the management panel header
+ * and specifies how to render each one's children.
  */
 function attachManagementPanelHeaderButtons() {
   const managementPanelHeaderButtons = [
@@ -187,7 +200,9 @@ function attachManagementPanelHeaderButtons() {
 }
 
 /**
- * 
+ * This displays the processes in the management panel
+ * and specifies how to add these processes and how these
+ * processes behave within the simulation through their handlers.
  */
 function displayManagementPanelContentProcesses() {
   managementPanelContent.replaceChildren();
@@ -205,8 +220,11 @@ function displayManagementPanelContentProcesses() {
 
     button.addEventListener("click", function (_event) {
       if (processEntities.length + 1 > PROCESS_CAP) return;
-
-      // create process dom element here
+      
+      /**
+       * Event handler when the user is connecting the 
+       * existing process to a file.
+       */
       const handleConnect = (_event: MouseEvent) => {
         if (process.file || connectThis) {
           connectThis = undefined;
@@ -218,6 +236,10 @@ function displayManagementPanelContentProcesses() {
         connectThis = [process, processDOM];
       }
 
+      /**
+       * Event handler when the user is deleting the 
+       * process.
+       */
       const handleDelete = (_event: MouseEvent) => {
         for (let index = processEntities.length - 1; index >= 0; --index) {
           if (processEntities[index][0] === process) {
@@ -244,6 +266,7 @@ function displayManagementPanelContentProcesses() {
       const processDOM = createSandboxProcessDOM(processType, adjustedName, handleConnect, handleDelete, handleDrag);
       const process = generator();
 
+      // again, this gets called whenever the process state's change
       process.context.statechange = (self) => {
         if (self.context.type === PROCESS_TYPE.READER) {
           processDOM.querySelector(".output")!.innerHTML = self.context.output;
@@ -275,13 +298,14 @@ function displayManagementPanelContentProcesses() {
       sandbox.appendChild(processDOM);
       processEntities.push([process, processDOM]);
 
-      // reposition process to center on add
+      // reposition process to center upon getting added
       const rectangle = processDOM.getBoundingClientRect();
       const centerY = window.innerHeight * 0.5 - rectangle.height * 0.5;
       processDOM.style.left = window.innerWidth * 0.5 - rectangle.width * 0.5 + "px";
       processDOM.style.top = centerY + "px";
       operatingSystem.setPriority(process, -centerY);
 
+      // update related displays for accuracy
       updateCounterDisplay();
       updateProcessesRankDisplay();
       updateSolutionDisplay();
@@ -293,7 +317,9 @@ function displayManagementPanelContentProcesses() {
 }
 
 /**
- * 
+ * This is how the files are rendered as options in the 
+ * management panel. This also tells us how to add those files
+ * in the graphical simulation and how they behave through handlers.
  */
 function displayManagementPanelContentFiles() {
   managementPanelContent.replaceChildren();
@@ -315,8 +341,11 @@ function displayManagementPanelContentFiles() {
       if (fileEntities.length + 1 > PROCESS_CAP) return;
       const file = generator();
 
+      /**
+       * Event-handler for when the user is deleting
+       * the file within the simulation.
+       */
       const handleDelete = (_event: MouseEvent) => {
-
         for (const [process] of processEntities) {
           if (process.file === file) {
             process.disconnect();
@@ -334,6 +363,8 @@ function displayManagementPanelContentFiles() {
         controlPlayStopButton.disabled = getConnectionCount() === 0;
       }
 
+      // we adjust the filename for clarity in the fact that we're spawning 
+      // different files regardless of the same content.
       const adjustedFilename = filename.split(".").map(
         (value, index) => {
           if (index === 0)
@@ -344,6 +375,10 @@ function displayManagementPanelContentFiles() {
 
       const fileDOM = createSandboxFileDOM(adjustedFilename, content, handleDelete);
 
+      /**
+       * This is part of the listener to be able to 
+       * connect the process to a file.
+       */
       fileDOM.addEventListener("mousedown", _event => {
         if (!connectThis) return;
         const process = connectThis[0];
@@ -353,6 +388,10 @@ function displayManagementPanelContentFiles() {
         controlPlayStopButton.disabled = getConnectionCount() === 0;
       });
 
+      /**
+       * When the file's state changes we just want to ensure
+       * that it displays the latest content.
+       */
       file.statechange = (self) => {
         fileDOM.querySelector(".content")!.innerHTML = self.content;
       }
@@ -360,6 +399,7 @@ function displayManagementPanelContentFiles() {
       sandbox.appendChild(fileDOM);
       fileEntities.push([file, fileDOM]);
 
+      // also position it to center on add
       const rectangle = fileDOM.getBoundingClientRect();
       const centerY = window.innerHeight * 0.5 - rectangle.height * 0.5;
       fileDOM.style.left = window.innerWidth * 0.5 - rectangle.width * 0.5 + "px";
@@ -383,9 +423,11 @@ function displayManagementPanelContentOverview() {
   managementPanelContent.replaceChildren();
 
   if (operatingSystem.running) {
+    // if the simulation is running then,
     const tableDOM = document.createElement("table");
     tableDOM.className = "max-w-[200px] table-auto";
 
+    // we aggregate the table row values
     const rows = [
       ["Process", "State"],
       ...processEntities.map(([process, processDOM]) => {
@@ -408,6 +450,7 @@ function displayManagementPanelContentOverview() {
       })
     ];
 
+    // create the equivalent DOM elements
     for (const row of rows) {
       const rowDOM = document.createElement("tr");
       
@@ -421,13 +464,14 @@ function displayManagementPanelContentOverview() {
       tableDOM.appendChild(rowDOM);
     }
 
+    // and display those DOM elements
     managementPanelContent.appendChild(tableDOM);
-
     const disclaimer = document.createElement("div");
     disclaimer.className = "max-w-[200px] text-left px-3 select-none";
     disclaimer.innerHTML = "Moving out of this panel will clear the values and overview.";
     managementPanelContent.appendChild(disclaimer);
   } else {
+    // when the simulation is not running, we display this information
     const container = document.createElement("div");
     container.className = "max-w-[200px] text-left px-3 select-none";
     container.innerHTML = "Run simulation to see values in real-time.";
@@ -436,7 +480,8 @@ function displayManagementPanelContentOverview() {
 }
 
 /**
- * 
+ * Function to count and update the rank of each process in the DOM. Under-the-hood
+ * this relies on the process' priority.
  */
 function updateProcessesRankDisplay() {
   for (const [process, element] of processEntities) {
@@ -445,7 +490,8 @@ function updateProcessesRankDisplay() {
 }
 
 /**
- * 
+ * Funtion to update the current solution that the simulation will adapt.
+ * The simulation behavior is explained by the OS implementation. 
  */
 function updateSolutionDisplay() {
   if (resourceLockingEnabled) {
@@ -459,7 +505,8 @@ function updateSolutionDisplay() {
 }
 
 /**
- * 
+ * Function to stop the simulation, managing the OS and the graphical
+ * user-interface.
  */
 function stopSimulation() {
   operatingSystem.stop();
@@ -477,7 +524,9 @@ function stopSimulation() {
 }
 
 /**
- * 
+ * Function to reset the simulation, and by reset it means resetting
+ * the files and processes to their initial state, and it includes their DOM
+ * counterpart.
  */
 function resetSimulation() {
   stopSimulation();
@@ -497,15 +546,16 @@ function resetSimulation() {
 }
 
 /**
- * 
- * @returns 
+ * This is a helper function to count the number of connections there are.
+ * @returns the number of connections.
  */
 function getConnectionCount() {
   return processEntities.filter(([process]) => process.file).length;
 }
 
 /**
- * 
+ * This is a helper fnction that generates a cryptographically secure random string.
+ * @returns random string of given length.
  */
 function generateRandomString(length: number) {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -515,7 +565,7 @@ function generateRandomString(length: number) {
 }
 
 /**
- * 
+ * Event-handler for when the reset button is clicked.
  */
 controlResetButton.addEventListener("click", _event => {
   if (operatingSystem.running) return;
@@ -523,7 +573,7 @@ controlResetButton.addEventListener("click", _event => {
 });
 
 /**
- * 
+ * Event handler for when the clear all button is clicked.
  */
 controlClearAllButton.addEventListener("click", _event => {
   if (operatingSystem.running) return;
@@ -536,7 +586,7 @@ controlClearAllButton.addEventListener("click", _event => {
 });
 
 /**
- * 
+ * Event-handler for when the play/stop button is clicked.
  */
 controlPlayStopButton.addEventListener("click", _event => {
   if (operatingSystem.running) {
@@ -563,7 +613,7 @@ function updateCounterDisplay() {
 }
 
 /**
- * 
+ * Event-handler for when the toggle solution is clicked.
  */
 controlSolutionToggle.addEventListener("click", _event => {
   if (operatingSystem.running) return;
@@ -584,6 +634,10 @@ controlSolutionToggle.addEventListener("click", _event => {
   updateSolutionDisplay();
 });
 
+/**
+ * We just want to conveniently track mouse position
+ * as necessary.
+ */
 document.body.addEventListener("mousemove", event => {
   if (!connectThis) return;
   const box = connectionCanvas.getBoundingClientRect();
@@ -597,7 +651,8 @@ document.body.addEventListener("mousemove", event => {
 });
 
 /**
- * 
+ * Event-handler on resize where we ensure that
+ * the width, height, and canvas sizes are correct.
  */
 window.addEventListener("resize", _event => {
   width = window.innerWidth * 2;
