@@ -8,7 +8,7 @@ import { PROCESS_TYPE } from "./logical-templates";
  */
 export function createManagementPanelContentProcessDOM(type: PROCESS_TYPE, name: string) {
     const root = document.createElement("button");
-    root.className = "flex items-center gap-2 px-2 py-1";
+    root.className = "flex items-center gap-2 px-2 py-1 text-left cursor-pointer hover:bg-neutral-700 ";
 
     //
     const mark = document.createElement("div");
@@ -61,7 +61,7 @@ export function createSandboxProcessDOM(type: PROCESS_TYPE, name: string, onClic
 
     //
     const label = document.createElement("div");
-    label.className = "flex items-center";
+    label.className = "name flex items-center";
     label.innerHTML = name;
 
     const rank = document.createElement("div");
@@ -167,7 +167,7 @@ export function createSandboxProcessDOM(type: PROCESS_TYPE, name: string, onClic
  */
 export function createManagementPanelContentFileDOM(name: string, content: string) {
     const root = document.createElement("div");
-    root.className = "none cursor-grab border !w-54 text-sm border-neutral-900 bg-neutral-800/80 text-white flex flex-col items-start group";
+    root.className = "none cursor-grab border text-left cursor-pointer hover:bg-neutral-700  !w-54 text-sm border-neutral-900 bg-neutral-800/80 text-white flex flex-col items-start group";
 
     const staticInformation = document.createElement("div");
     staticInformation.className = "p-2 grow-0";

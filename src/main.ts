@@ -267,6 +267,8 @@ function displayManagementPanelContentProcesses() {
             processDOM.classList.remove("ready-process", "running-process", "waiting-process");
             break;
         }
+
+        displayManagementPanelContentOverview();
       }
 
       operatingSystem.addProcess(process);
@@ -380,6 +382,57 @@ function displayManagementPanelContentFiles() {
 function displayManagementPanelContentOverview() {
   managementPanelContent.replaceChildren();
 
+  if (operatingSystem.running) {
+    const tableDOM = document.createElement("table");
+    tableDOM.className = "max-w-[200px] table-auto";
+
+    const rows = [
+      ["Process", "State"],
+      ...processEntities.map(([process, processDOM]) => {
+        let state;
+        switch (process.state) {
+          case PROCESS_STATE.READY:
+            state = "Ready";
+            break;
+          case PROCESS_STATE.RUNNING:
+            state = "Running";
+            break;
+          case PROCESS_STATE.WAITING:
+            state = "Waiting";
+            break;
+          case PROCESS_STATE.EXIT:
+            state = "Exit";
+            break;
+        }
+        return [processDOM.querySelector(".name")!.innerHTML, state]
+      })
+    ];
+
+    for (const row of rows) {
+      const rowDOM = document.createElement("tr");
+      
+      for (const value of row) {
+        const dataDOM = document.createElement("td");
+        dataDOM.className = "px-3 border break-words";
+        dataDOM.innerHTML = value;
+        rowDOM.appendChild(dataDOM);
+      }
+
+      tableDOM.appendChild(rowDOM);
+    }
+
+    managementPanelContent.appendChild(tableDOM);
+
+    const disclaimer = document.createElement("div");
+    disclaimer.className = "max-w-[200px] text-left px-3 select-none";
+    disclaimer.innerHTML = "Moving out of this panel will clear the values and overview.";
+    managementPanelContent.appendChild(disclaimer);
+  } else {
+    const container = document.createElement("div");
+    container.className = "max-w-[200px] text-left px-3 select-none";
+    container.innerHTML = "Run simulation to see values in real-time.";
+    managementPanelContent.appendChild(container);
+  }
 }
 
 /**
@@ -488,11 +541,11 @@ controlClearAllButton.addEventListener("click", _event => {
 controlPlayStopButton.addEventListener("click", _event => {
   if (operatingSystem.running) {
     resetSimulation();
+    displayManagementPanelContentOverview();
     return;
   }
   
   resetSimulation();
-  console.log(processEntities)
   operatingSystem.start();
   controlPlayStopButton.querySelector("span")!.innerHTML = "stop";
 

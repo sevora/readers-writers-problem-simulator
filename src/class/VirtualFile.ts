@@ -111,7 +111,8 @@ class VirtualFile {
     }
 
     /**
-     * 
+     * Use this to reset the file back to an original state
+     * related to the simulation. Original content and no locks.
      */
     reset() {
         this.content = this.backupContent;
