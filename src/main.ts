@@ -404,8 +404,8 @@ function displayManagementPanelContentFiles() {
       fileDOM.style.left = window.innerWidth * 0.5 - rectangle.width * 0.5 + "px";
       fileDOM.style.top = centerY + "px";
 
-      if (!resourceLockingEnabled)
-        file.disableLock();
+      if (resourceLockingEnabled)
+        file.enableLock();
 
       updateCounterDisplay();
     });
