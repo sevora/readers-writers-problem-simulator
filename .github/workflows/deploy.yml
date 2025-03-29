@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - main
-      
+
+permissions:
+  contents: write
+  
 jobs:
   build:
-    permissions:
-      contents: write
+
     name: Build
     runs-on: ubuntu-latest
 
@@ -49,3 +51,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+          cname: os.ralphlouisgopez.com
