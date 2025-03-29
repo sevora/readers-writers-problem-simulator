@@ -6,57 +6,66 @@
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Readers-Writers Problem Simulator</title>
+  <link rel="stylesheet" href="src/style.css" />
 </head>
 
 <body class="bg-neutral-700 overflow-hidden">
-  <!-- Simulation Process Management Control -->
-  <div class="z-10 text-white p-2 fixed rounded-md right-[50px] top-2 flex flex-col items-center justify-center gap-2 bg-neutral-800/90">
-    <div id="management-panel-header" class="flex gap-2 *:px-2 *:py-1 *:rounded-md *:cursor-pointer *:hover:bg-neutral-700"></div>
-    <div id="management-panel-content" class="w-full max-h-72 flex items-start flex-col gap-2 *:w-full *:rounded-sm overflow-auto">
+  <div class="max-sm:flex hidden bg-neutral-900 p-2 text-white w-screen h-screen items-center justify-center">
+    <div>
+      Screen is too small. Simulator is not accessible on mobile.
     </div>
   </div>
 
-  <!-- Simulation Event Control -->
-  <div class="fixed z-50 bottom-10 w-screen flex items-center justify-center gap-4">
+  <div class="sm:block hidden">
+    <!-- Simulation Process Management Control -->
+    <div class="z-10 text-white p-2 fixed rounded-md right-[50px] top-2 flex flex-col items-center justify-center gap-2 bg-neutral-800/90">
+      <div id="management-panel-header" class="flex gap-2 *:px-2 *:py-1 *:rounded-md *:cursor-pointer *:hover:bg-neutral-700"></div>
+      <div id="management-panel-content" class="w-full max-h-72 flex items-start flex-col gap-2 *:w-full *:rounded-sm overflow-auto">
+      </div>
+    </div>
+
+    <!-- Simulation Event Control -->
+    <div class="fixed z-50 bottom-10 w-screen flex items-center justify-center gap-4">
+      
+      <!-- Play or Pause Button -->
+      <button id="control-play-stop" class="text-white bg-neutral-800/90 flex items-center justify-center rounded-full w-[50px] h-[50px] enabled:hover:bg-neutral-900 enabled:cursor-pointer disabled:opacity-50" disabled>
+        <span class="material-icons">play_arrow</span>
+      </button>
+
+      <!-- Replay Button -->
+      <button id="control-reset" class="select-none text-white bg-neutral-800/90 flex items-center justify-center rounded-full w-[40px] h-[40px] enabled:hover:bg-neutral-900 enabled:cursor-pointer disabled:opacity-50">
+        <span class="material-icons">replay</span>
+      </button>
+
+      <!-- Delete All Button -->
+      <button id="control-clear-all" class="select-none text-white bg-neutral-800/90 flex items-center justify-center rounded-full w-[40px] h-[40px] enabled:hover:bg-neutral-900 enabled:cursor-pointer disabled:opacity-50">
+        <span class="material-icons">delete</span>
+      </button>
+
+      <!-- Enable or Disable the Solution -->
+      <button id="control-solution-toggle" class="select-none text-white bg-neutral-800/90 flex items-center justify-center rounded-full px-5 h-[40px] enabled:hover:bg-neutral-900 enabled:cursor-pointer disabled:opacity-50">
+        OS Read-Write Lock Disabled
+      </button>
+    </div>
+
+    <div class="z-50 select-none text-white p-2 rounded-md flex flex-col justify-center gap-1 bg-neutral-800/90 fixed bottom-10 right-10"> 
+      <div>Process Count: <span id="counter-process">0/5</span></div>
+      <div class="flex">File Count: <div id="counter-file" class="ml-auto">0/5</div></div>
+    </div>
+
+    <div class="fixed w-screen flex items-center justify-center p-2">
+      <div id="solution" class="select-none text-white bg-neutral-800/90 p-2 rounded-xl">
+        Readers-Writers Problem
+      </div>
+    </div>
     
-    <!-- Play or Pause Button -->
-    <button id="control-play-stop" class="text-white bg-neutral-800/90 flex items-center justify-center rounded-full w-[50px] h-[50px] enabled:hover:bg-neutral-900 enabled:cursor-pointer disabled:opacity-50" disabled>
-      <span class="material-icons">play_arrow</span>
-    </button>
+    <div id="sandbox"></div>
 
-    <!-- Replay Button -->
-    <button id="control-reset" class="select-none text-white bg-neutral-800/90 flex items-center justify-center rounded-full w-[40px] h-[40px] enabled:hover:bg-neutral-900 enabled:cursor-pointer disabled:opacity-50">
-      <span class="material-icons">replay</span>
-    </button>
+    <!-- Screen cover to prevent interaction on certain states -->
+    <div id="prevent-interactions-cover" class="w-screen h-screen fixed cursor-not-allowed hidden z-40"></div>
 
-    <!-- Delete All Button -->
-    <button id="control-clear-all" class="select-none text-white bg-neutral-800/90 flex items-center justify-center rounded-full w-[40px] h-[40px] enabled:hover:bg-neutral-900 enabled:cursor-pointer disabled:opacity-50">
-      <span class="material-icons">delete</span>
-    </button>
-
-    <!-- Enable or Disable the Solution -->
-    <button id="control-solution-toggle" class="select-none text-white bg-neutral-800/90 flex items-center justify-center rounded-full px-5 h-[40px] enabled:hover:bg-neutral-900 enabled:cursor-pointer disabled:opacity-50">
-      OS Read-Write Lock Disabled
-    </button>
+    <canvas id="connection-canvas" class="w-screen h-screen"></canvas>
   </div>
-
-  <div class="z-50 select-none text-white p-2 rounded-md flex flex-col justify-center gap-1 bg-neutral-800/90 fixed bottom-10 right-10"> 
-    <div>Process Count: <span id="counter-process">0/5</span></div>
-    <div class="flex">File Count: <div id="counter-file" class="ml-auto">0/5</div></div>
-  </div>
-
-  <div class="fixed w-screen flex items-center justify-center p-2">
-    <div id="solution" class="select-none text-white bg-neutral-800/90 p-2 rounded-xl">
-      Readers-Writers Problem
-    </div>
-  </div>
-  
-  <div id="sandbox"></div>
-
-  <!-- Screen cover to prevent interaction on certain states -->
-  <div id="prevent-interactions-cover" class="w-screen h-screen fixed cursor-not-allowed hidden z-40"></div>
-
-  <canvas id="connection-canvas" class="w-screen h-screen"></canvas>
   <script type="module" src="/src/main.ts"></script>
 </body>
 

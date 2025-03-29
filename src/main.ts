@@ -1,5 +1,4 @@
 import 'material-icons/iconfont/material-icons.css';
-import './style.css';
 
 import OperatingSystem from './class/OperatingSystem';
 import Process, { PROCESS_STATE } from './class/Process';
