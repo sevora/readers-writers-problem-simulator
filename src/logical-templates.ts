@@ -146,44 +146,24 @@ export function createWriteLowercase() {
     );
 }
 
-/**
- * 
- * @returns 
- */
 export function createRooseveltFile() {
     return new VirtualFile("roosevelt.txt", "Great minds discuss ideas; average minds discuss events; small minds discuss people.");
 }
 
 
-/**
- * 
- * @returns 
- */
 export function createEinsteinFile() {
     return new VirtualFile("einstein.txt", "I have no special talent. I am only passionately curious.");
 }
 
 
-/**
- * 
- * @returns 
- */
 export function createNietzscheFile() {
     return new VirtualFile("nietzsche.txt", "That which does not kill us makes us stronger.");
 }
 
-/**
- * 
- * @returns 
- */
 export function createAristotleFile() {
     return new VirtualFile("aristotle.txt", "We are what we repeatedly do; excellence, then, is not an act but a habit.");
 }
 
-/**
- * 
- * @returns 
- */
 export function createShakespeareFile() {
     return new VirtualFile("shakespeare.txt", "It is not in the stars to hold our destiny but in ourselves.");
 }
