@@ -47,7 +47,7 @@ export function createManagementPanelHeaderButtonDOM(name: string) {
  */
 export function createSandboxProcessDOM(type: PROCESS_TYPE, name: string, onClickConnect: (event: MouseEvent) => void, onClickDelete: (event: MouseEvent) => void, onDrag: (event: MouseEvent, x: number, y: number) => void) {
     const root = document.createElement("div");
-    root.className = "absolute select-none cursor-grab border w-[300px] bg-neutral-800 text-white flex flex-wrap group " + (type === PROCESS_TYPE.READER ? "border-gradient-green" : "border-gradient-blue");
+    root.className = "absolute select-none cursor-grab border w-[320px] bg-neutral-800 text-white flex flex-wrap group " + (type === PROCESS_TYPE.READER ? "border-gradient-green" : "border-gradient-blue");
 
     const staticInformation = document.createElement("div");
     staticInformation.className = "py-4 px-2 flex gap-2 grow";
