@@ -582,6 +582,7 @@ controlClearAllButton.addEventListener("click", _event => {
 
   sandbox.replaceChildren();
   updateCounterDisplay();
+  controlPlayStopButton.disabled = true;
 });
 
 /**
